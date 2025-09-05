@@ -4,7 +4,6 @@ const ASSETS = [
   "./index.html",
   "./styles.css",
   "./app.js",
-  "./products.json",
   "./manifest.webmanifest",
   // images
   "./images/logo.png",
@@ -32,7 +31,6 @@ self.addEventListener("fetch", e => {
     caches.match(e.request).then(hit => {
       if (hit) return hit;
       return fetch(e.request).then(resp => {
-        // cache a copy of any successful GET request
         if (e.request.method === "GET" && resp.status === 200 && !resp.headers.get("Cache-Control")?.includes("no-store")) {
           const copy = resp.clone();
           caches.open(CACHE_NAME).then(c => c.put(e.request, copy));

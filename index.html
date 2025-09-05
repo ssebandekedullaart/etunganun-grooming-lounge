@@ -1,640 +1,162 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<meta name="theme-color" content="#0d0f16"/>
-<title>Etunganun Digital Catalogue — Zara Collection (Interactive)</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 
-<style>
-:root{
-  --bg:#0b0e17; --bg2:#0f1425; --ink:#f2f6ff; --muted:#b8c0d8;
-  --card:#11162a; --panel:#0e1424; --line:rgba(255,255,255,.12);
-  --gold:#e9c882; --accent:#3ecf8e; --danger:#ff4d6d;
-  --chip:rgba(233,200,130,.10); --chip-b:rgba(233,200,130,.35);
-}
-*{box-sizing:border-box} html,body{margin:0;height:100%}
-body{
-  font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-  color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased;
-  background:
-    radial-gradient(1200px 600px at 90% -10%, rgba(233,200,130,.14), transparent 50%),
-    radial-gradient(900px 500px at 10% 0%, rgba(62,207,142,.10), transparent 60%),
-    linear-gradient(180deg, var(--bg), var(--bg2));
-}
-.container{max-width:1200px;margin:0 auto;padding:clamp(14px,2.6vw,24px)}
-a{color:inherit;text-decoration:none}
-h1{font-size:clamp(1.5rem,3.6vw,2.4rem);margin:.3rem 0}
-h2{font-size:clamp(1.1rem,2.2vw,1.6rem);margin:.2rem 0}
-p,li,button,a,small,input,select{font-size:clamp(.96rem,1.6vw,1rem)} small{color:var(--muted)}
-b{color:var(--gold)}
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b0e17">
 
-/* Header */
-.header{
-  position:sticky; top:0; z-index:40; border-bottom:1px solid var(--line);
-  background:
-    radial-gradient(800px 500px at 100% -10%, rgba(233,200,130,.18), transparent),
-    radial-gradient(800px 500px at 0% 0%, rgba(62,207,142,.12), transparent),
-    linear-gradient(180deg, rgba(16,19,33,.85), rgba(16,19,33,.72));
-  backdrop-filter: blur(10px) saturate(120%);
-}
-.brandbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brandbar .left{display:flex;align-items:center;gap:12px;min-width:280px}
-.logo{
-  height:60px;width:auto;object-fit:contain;background:transparent;
-  /* visual fallback if canvas can't run */
-  mix-blend-mode:multiply; filter:contrast(1.05) saturate(1.05);
-  border-radius:0;
-}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.pill{padding:6px 10px;border-radius:999px;border:1px solid var(--chip-b);background:var(--chip)}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:12px;border:1px solid var(--chip-b);color:#0a0b10;background:var(--gold);font-weight:800;box-shadow:0 10px 22px rgba(233,200,130,.30);cursor:pointer;touch-action:manipulation}
-.btn.ghost{background:transparent;color:var(--ink)}
-.btn.small{padding:8px 12px}
-.btn:active{transform:translateY(1px)}
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css"/>
 
-/* Hero */
-.hero{border-bottom:1px solid var(--line)}
-.hero .intro{padding:clamp(14px,3vw,22px) 0}
-.tip{color:#cfd6ea;font-size:.9rem;margin:.4rem 0}
-
-/* Advisor (top) */
-.advisor{
-  background:linear-gradient(180deg,var(--panel),#0c1220); border:1px solid var(--line); border-radius:16px;
-  padding:12px; display:grid; gap:10px; margin:12px 0;
-}
-.advisor .row{display:grid;grid-template-columns:1fr;gap:10px}
-@media (min-width:640px){ .advisor .row{grid-template-columns:repeat(3,1fr)} }
-label.k{display:flex;flex-direction:column;gap:6px}
-select,input[type="range"],input[type="text"]{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0c1220;color:#fff}
-.rangeval{font-variant-numeric:tabular-nums;color:var(--gold);font-weight:800}
-.recos{display:grid;gap:8px}
-.reco{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0e1428}
-.reco .meta{display:flex;flex-direction:column}
-.reco .name{font-weight:800}
-
-/* Grid / Cards */
-.grid{display:grid;grid-template-columns:1fr;gap:clamp(12px,2.2vw,18px);margin:clamp(12px,2.2vw,18px) 0}
-@media (min-width:640px){ .grid{grid-template-columns:1fr 1fr} }
-@media (min-width:1024px){ .grid{grid-template-columns:repeat(3,1fr)} }
-
-.card{background:linear-gradient(180deg,var(--card),#0f1426);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 14px 28px rgba(0,0,0,.35);transition:transform .2s ease, box-shadow .2s ease}
-.card:hover{transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.45)}
-.media{position:relative;background:#0a0d18;display:flex;align-items:center;justify-content:center}
-.media img{display:block;width:100%;height:clamp(210px,28vw,340px);object-fit:contain;object-position:center}
-.ribbon{position:absolute;left:10px;top:10px;display:flex;gap:8px;align-items:center}
-.badge{padding:6px 10px;border-radius:999px;font-weight:800;border:1px solid var(--line);background:rgba(62,207,142,.16);border-color:rgba(62,207,142,.35)}
-.badge.pre{background:rgba(255,77,109,.16);border-color:rgba(255,77,109,.35)}
-.eta{padding:6px 10px;border-radius:999px;background:#0b0f1d;border:1px dashed var(--line)}
-.price{position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0b10;font-weight:900;padding:8px 12px;border-radius:999px;border:1px solid rgba(183,122,42,.25);box-shadow:0 8px 22px rgba(233,200,130,.45)}
-.content{padding:14px}
-.meta{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
-.meta h3{margin:0;font-size:clamp(1rem,1.7vw,1.2rem)}
-.tag{padding:6px 10px;border-radius:999px;border:1px solid var(--chip-b);background:var(--chip)}
-.desc{color:#d7def1;margin:.35rem 0 .6rem}
-.notes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.chip{font-size:.85rem;padding:6px 10px;border-radius:999px;border:1px solid var(--chip-b);background:var(--chip)}
-.rows{display:grid;grid-template-columns:1fr;gap:8px}
-.row{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:10px}
-.actions-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.btn.block{flex:1}
-
-/* Sticky mobile bar */
-.sticky-actions{
-  position:fixed;left:0;right:0;bottom:0;z-index:55;display:flex;gap:10px;align-items:center;justify-content:center;
-  padding:10px;border-top:1px solid var(--line);
-  background:linear-gradient(180deg, rgba(16,19,33,.90), rgba(16,19,33,.92)); backdrop-filter: blur(10px) saturate(120%);
-}
-.sticky-actions .btn{flex:1;max-width:520px}
-
-/* Cart Floating FAB */
-.cart-fab{position:fixed;right:12px;bottom:72px;z-index:50}
-.cart-fab .fab{position:relative;padding:14px 16px;border-radius:999px;background:#3ecf8e;color:#0a0b10;font-weight:900;box-shadow:0 12px 22px rgba(62,207,142,.35)}
-.cart-fab .count{position:absolute;top:-6px;right:-6px;background:var(--gold);color:#0a0b10;font-weight:900;padding:4px 8px;border-radius:999px;border:1px solid rgba(183,122,42,.25)}
-
-/* Drawer Cart */
-.drawer{position:fixed;inset:0;z-index:60;display:none}
-.drawer.open{display:block}
-.overlay{position:absolute;inset:0;background:rgba(0,0,0,.45)}
-.panel{position:absolute;right:0;top:0;bottom:0;width:min(560px, 94vw);background:#0e1423;border-left:1px solid var(--line);box-shadow:0 20px 40px rgba(0,0,0,.5);display:flex;flex-direction:column}
-.panel header{display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:1px solid var(--line)}
-.items{flex:1;overflow:auto;padding:12px}
-.item{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px;margin-bottom:8px;background:#0d1324}
-.item img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:#111}
-.qty{display:flex;align-items:center;gap:6px}
-.qty button{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:transparent;color:#fff;cursor:pointer}
-.item-name{font-weight:700}
-.item-price{color:var(--gold)}
-.controls{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:12px;border-top:1px solid var(--line);background:rgba(255,255,255,.02)}
-.controls .left{display:grid;grid-template-columns:1fr;gap:8px;flex:1}
-@media (min-width:560px){ .controls .left{grid-template-columns:1fr 1fr} }
-.controls label{font-size:.9rem;color:#d7def1}
-.controls input,.controls select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#0c1220;color:#fff}
-.totals{border-top:1px dashed var(--line);padding:12px;display:grid;gap:8px}
-.totals .row{display:flex;justify-content:space-between}
-.checkout{padding:12px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
-.checkout .btn{flex:1}
-
-/* Footer & info */
-.info-rows{display:grid;gap:10px;margin:16px 0}
-.info{border:1px solid var(--line);border-radius:14px;padding:12px;background:linear-gradient(180deg,#12182b,#0e1426)}
-.address{white-space:pre-wrap}
-.footer{text-align:center;color:#c2c9d9;padding:20px;border-top:1px dashed var(--line)}
-</style>
+  <title>Etunganun Digital Catalogue — Zara Collection (Interactive)</title>
 </head>
 <body>
-<header class="header">
-  <div class="container brandbar">
-    <div class="left">
-      <!-- LOGO fixed; background removed with JS below -->
-      <img id="logo" class="logo" src="logo.png" alt="Etunganun Grooming Lounge"/>
-      <div>
-        <h2 style="margin:.2rem 0;">Etunganun Digital Catalogue</h2>
-        <div class="sub">Zara Collection • Updated Sep 05, 2025</div>
-        <div class="pills">
-          <span class="pill">Luxury Grooming • Kira Town</span>
-          <span class="pill">Nationwide delivery</span>
-          <span class="pill">Pay by MoMo / Airtel / Card</span>
+  <header class="header">
+    <div class="container brandbar">
+      <div class="left">
+        <img id="logo" class="logo" src="images/logo.png" alt="Etunganun Grooming Lounge"/>
+        <div>
+          <h2 class="title">Etunganun Digital Catalogue</h2>
+          <div class="sub">Zara Collection • Updated Sep 05, 2025</div>
+          <div class="pills">
+            <span class="pill">Luxury Grooming • Kira Town</span>
+            <span class="pill">Nationwide Delivery</span>
+            <span class="pill">MoMo / Airtel / Card</span>
+          </div>
         </div>
       </div>
+      <div class="actions">
+        <a class="btn" id="btnWhatsApp" href="#">WhatsApp</a>
+        <a class="btn ghost" href="tel:+256393101757">Call: +256 393 101 757</a>
+        <button class="btn" id="openCartHeader">Cart (<span class="js-cart-count">0</span>)</button>
+      </div>
     </div>
-    <div class="actions">
-      <a class="btn" href="#" id="btnWhatsApp">WhatsApp to order</a>
-      <a class="btn ghost" href="tel:+256393101757">Call: +256 393 101 757</a>
+  </header>
+
+  <section class="hero">
+    <div class="container intro">
+      <h1>Strong. Long-Lasting. Curated by Etunganun.</h1>
+      <p class="tip">Performance varies by skin & weather. For Kampala heat, moisturize and add 1–2 light sprays on clothes to extend wear.</p>
     </div>
-  </div>
-</header>
+  </section>
 
-<section class="hero">
-  <div class="container intro">
-    <h1>Strong. Long-Lasting. Curated by Etunganun.</h1>
-    <p class="tip">Performance varies by skin & weather. For Kampala heat, moisturize and add 1–2 light sprays on clothes to extend wear.</p>
-  </div>
-</section>
+  <!-- Scent Advisor -->
+  <section class="container advisor" id="advisor">
+    <h2>Find your scent ✨</h2>
+    <div class="row">
+      <label class="k">Occasion
+        <select id="fOcc"><option>Everyday</option><option>Office</option><option>Night out</option><option>Date</option><option>Party</option></select>
+      </label>
+      <label class="k">Weather
+        <select id="fWeather"><option>Hot</option><option>Warm</option><option>Cool</option><option>Rainy</option></select>
+      </label>
+      <label class="k">Sweet ↔ Fresh <span class="rangeval" id="rSweetVal">5</span>
+        <input type="range" id="rSweet" min="0" max="10" value="5"/>
+      </label>
+    </div>
+    <div class="row">
+      <label class="k">Projection (soft ↔ strong) <span class="rangeval" id="rProjVal">6</span>
+        <input type="range" id="rProj" min="0" max="10" value="6"/>
+      </label>
+      <label class="k">I like notes...
+        <select id="fNote">
+          <option>Vanilla/Gourmand</option>
+          <option>Woody/Spicy</option>
+          <option>Fresh/Citrus</option>
+          <option>Smoky/Tobacco</option>
+        </select>
+      </label>
+      <label class="k">Sensitivity (prefer lighter)
+        <select id="fSens"><option>No</option><option>Yes</option></select>
+      </label>
+    </div>
+    <div class="advisor-actions">
+      <button class="btn" id="runAdvisor">Show my match</button>
+      <button class="btn ghost" id="clearRecos">Clear</button>
+    </div>
+    <div class="recos" id="recos"></div>
+  </section>
 
-<!-- AI SCENT ADVISOR (Top) -->
-<section class="container advisor" id="advisor">
-  <h2>Find your scent ✨</h2>
-  <div class="row">
-    <label class="k">Occasion
-      <select id="fOcc"><option>Everyday</option><option>Office</option><option>Night out</option><option>Date</option><option>Party</option></select>
-    </label>
-    <label class="k">Weather
-      <select id="fWeather"><option>Hot</option><option>Warm</option><option>Cool</option><option>Rainy</option></select>
-    </label>
-    <label class="k">Sweet ↔ Fresh <span class="rangeval" id="rSweetVal">5</span>
-      <input type="range" id="rSweet" min="0" max="10" value="5"/>
-    </label>
-  </div>
-  <div class="row">
-    <label class="k">Projection (soft ↔ strong) <span class="rangeval" id="rProjVal">6</span>
-      <input type="range" id="rProj" min="0" max="10" value="6"/>
-    </label>
-    <label class="k">I like notes...
-      <select id="fNote">
-        <option>Vanilla/Gourmand</option>
-        <option>Woody/Spicy</option>
-        <option>Fresh/Citrus</option>
-        <option>Smoky/Tobacco</option>
-      </select>
-    </label>
-    <label class="k">Sensitivity (I prefer lighter scents)
-      <select id="fSens"><option>No</option><option>Yes</option></select>
-    </label>
-  </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn" id="runAdvisor">Show my match</button>
-    <button class="btn ghost" id="clearRecos">Clear</button>
-  </div>
-  <div class="recos" id="recos"></div>
-</section>
+  <main class="container">
+    <section class="grid" id="grid"></section>
 
-<main class="container">
-  <section class="grid" id="grid"></section>
-
-  <section class="info-rows">
-    <div class="info"><b>Delivery:</b> Kira Town — <b>UGX 5,000</b> (FREE ≥ <b>UGX 500,000</b>). Other areas — please inquire.</div>
-    <div class="info"><b>Payment:</b> MTN MoMo Pay (*165*3# → Merchant ID <b>707229</b>), Airtel Money Pay (*185*9# → Merchant ID <b>4370918</b>), Card/Online (secure link), Cash in-store.</div>
-    <div class="info address"><b>Find us:</b> Mbogo Road 1, Twin Plaza, Opp. Posh Petrol Station.
+    <section class="info-rows">
+      <div class="info"><b>Delivery:</b> Kira Town — <b>UGX 5,000</b> (FREE ≥ <b>UGX 500,000</b>). Other areas — please inquire.</div>
+      <div class="info"><b>Payment:</b> MTN MoMo Pay (*165*3# → Merchant ID <b>707229</b>), Airtel Money Pay (*185*9# → Merchant ID <b>4370918</b>), Card (Stage 2), Cash in-store.</div>
+      <div class="info address"><b>Find us:</b> Mbogo Road 1, Twin Plaza, Opp. Posh Petrol Station.
 If coming from Najjera: after Sir Appolo Kaggwa Primary School.
 From Kyaliwajjala/Bulindo/Kanangati: after Ccare.</div>
-  </section>
-</main>
+    </section>
+  </main>
 
-<!-- Sticky actions (mobile-first) -->
-<div class="sticky-actions">
-  <a class="btn ghost" href="https://wa.me/256393101757?text=Hello%20Etunganun!%20I’d%20like%20to%20order%20from%20your%20catalogue." target="_blank">WhatsApp</a>
-  <button class="btn" id="openCartSticky">Open Cart</button>
-</div>
-
-<!-- Floating Cart FAB (above sticky bar) -->
-<div class="cart-fab"><button class="fab" id="openCart">Cart <span class="count" id="cartCount">0</span></button></div>
-
-<!-- Drawer Cart -->
-<div class="drawer" id="drawer">
-  <div class="overlay" id="overlay"></div>
-  <div class="panel">
-    <header>
-      <strong>Your Cart</strong>
-      <button class="btn small ghost" id="closeCart">Close</button>
-    </header>
-    <div class="items" id="cartItems"></div>
-    <div class="controls">
-      <div class="left">
-        <label>Customer name <input id="custName" placeholder="Your full name"/></label>
-        <label>Area
-          <select id="area"><option value="Kira Town">Kira Town</option><option value="Other area">Other area (we'll confirm fee)</option></select>
-        </label>
-        <label>Preferred payment
-          <select id="pay"><option>MTN MoMo Pay</option><option>Airtel Money Pay</option><option>Card / Online</option><option>Cash</option></select>
-        </label>
-        <label>Notes (optional) <input id="note" placeholder="e.g., deliver after 6pm"/></label>
-      </div>
-    </div>
-
-    <div class="paybox" id="paybox" style="display:none">
-      <div class="payrow"><span><b>Amount to pay now</b></span><b id="payAmount">UGX 0</b></div>
-      <div class="payrow" id="mtnRow" style="display:none">
-        <div><b>MTN MoMo Pay</b> — Dial <b>*165*3#</b> → Merchant ID <b>707229</b><div class="note-inline">Reference: <b>Your Name</b></div></div>
-        <button class="copy" data-copy="707229">Copy ID</button>
-      </div>
-      <div class="payrow" id="airtelRow" style="display:none">
-        <div><b>Airtel Money Pay</b> — Dial <b>*185*9#</b> → Merchant ID <b>4370918</b><div class="note-inline">Reference: <b>Your Name</b></div></div>
-        <button class="copy" data-copy="4370918">Copy ID</button>
-      </div>
-      <div class="payrow">
-        <label style="flex:1">Transaction ID <input id="txid" placeholder="e.g., MTN: MXXXX... / Airtel: RXXXXXXXX"/></label>
-        <label><input type="checkbox" id="paidChk"/> I’ve paid</label>
-      </div>
-    </div>
-
-    <div class="totals">
-      <div class="row"><span>Subtotal</span><b id="subTotal">UGX 0</b></div>
-      <div class="row"><span>Delivery</span><b id="deliveryFee">UGX 0</b></div>
-      <div class="row"><span>Total</span><b id="grandTotal">UGX 0</b></div>
-    </div>
-    <div class="checkout">
-      <button class="btn ghost" id="clearCart">Clear</button>
-      <button class="btn" id="checkoutWA">Checkout via WhatsApp</button>
-    </div>
-    <div class="help">We confirm stock promptly and deliver nationwide.</div>
+  <!-- Sticky actions (mobile) -->
+  <div class="sticky-actions">
+    <a class="btn ghost" href="https://wa.me/256393101757?text=Hello%20Etunganun!%20I’d%20like%20to%20order%20from%20your%20catalogue." target="_blank" rel="noopener">WhatsApp</a>
+    <button class="btn" id="openCartSticky">Cart (<span class="js-cart-count">0</span>)</button>
   </div>
-</div>
 
-<footer class="footer">© Etunganun Grooming Lounge — Your Hair. Your Skin. Your Space.</footer>
-
-<script>
-/* ---------- PRODUCTS (with longevity & projection) ---------- */
-const PRODUCTS = [
-  {
-    sku:"MD100",
-    name:"MAGNIFICENTLY DUBAI EDP 100 ML",
-    short:"Magnificently Dubai",
-    price:330000,
-    img:"magnificently-dubai.jpg",
-    tag:"Oud • Spicy • Opulent",
-    desc:"Opulent oud accented by saffron and warm spice on an ambered base.",
-    notes:["Saffron","Oud","Amber"],
-    wear:"Formal nights • Weddings • Cool weather",
-    how:"2–4 sprays chest & collarbone; optional 1 on blazer/scarf.",
-    longevity:"7–10 hours",
-    projection:"Strong → Moderate",
-    status:"in-stock"
-  },
-  {
-    sku:"FHI90",
-    name:"FOR HIM INTENSE PARFUM 90 ML",
-    short:"For Him Intense",
-    price:275000,
-    img:"for-him-intense.jpg",
-    tag:"Oriental • Parfum • Strong",
-    desc:"Citrus spark of bergamot, cardamom spice and warm sandalwood base.",
-    notes:["Bergamot","Cardamom","Sandalwood"],
-    wear:"Evening events • Formal • Date night",
-    how:"3–5 sprays chest (moisturized), neck sides, below the ears.",
-    longevity:"6–9 hours",
-    projection:"Strong (first 1–2h) → Moderate",
-    status:"in-stock"
-  },
-  {
-    sku:"B80090",
-    name:"800 BLACK EDT 90 ML",
-    short:"800 Black",
-    price:195000,
-    img:"800-black.jpg",
-    tag:"Citrus-Woody • Night",
-    desc:"Yuzu brightness meets saffron and tonka bean for sleek evening impact.",
-    notes:["Yuzu","Saffron","Tonka Bean"],
-    wear:"Night out • Clubs • Smart evenings",
-    how:"2–4 sprays neck sides, collarbone, chest.",
-    longevity:"2–8 hours (skin-dependent)",
-    projection:"Weak–Moderate",
-    status:"in-stock"
-  },
-  {
-    sku:"TCIDE100",
-    name:"#TOBACCO COLLECTION INTENSE DARK EXCLUSIVE EDT 100 ML",
-    short:"Tobacco Intense Dark Exclusive",
-    price:210000,
-    img:"tobacco-collection-intense-dark-exclusive.jpg",
-    tag:"Tobacco • Warm • Sweet",
-    desc:"Rich tobacco over honeyed vanilla and ambered woods. Cozy and addictive.",
-    notes:["Tobacco","Vanilla","Amber"],
-    wear:"Evenings • Dates • Cool/Rainy weather",
-    how:"3–4 sprays chest & neck; optional 1 on hoodie for trail.",
-    longevity:"4–8 hours",
-    projection:"Moderate (good first 2–3h)",
-    status:"in-stock"
-  },
-  {
-    sku:"OVL60",
-    name:"OUD VIBRANT LEATHER EDP 60 ML",
-    short:"Oud Vibrant Leather",
-    price:185000,
-    img:"oud-vibrant-leather.jpg",
-    tag:"Woody • Oud • Elegant",
-    desc:"Bright citrus and incense over refined oud and oak; smooth and dressy.",
-    notes:["Bergamot","Incense","Oud","Oak"],
-    wear:"Dinners • Special occasions • Cool evenings",
-    how:"2–4 sprays chest & collarbone; avoid over-spraying on light fabrics.",
-    longevity:"4–6 hours",
-    projection:"Strong (first hour) → Moderate",
-    status:"in-stock"
-  }
-];
-
-/* ---------- UTIL ---------- */
-const UGX = n => 'UGX ' + (n||0).toLocaleString('en-US');
-const addDays = (d, days) => { const x=new Date(d); x.setDate(x.getDate()+days); return x; };
-const etaText = (days) => {
-  const d = addDays(new Date('2025-09-05T00:00:00'), days); // adjust date if needed
-  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
-};
-
-/* ---------- RENDER ---------- */
-const grid = document.getElementById('grid');
-function chipList(arr){ return (arr||[]).map(n=>`<span class="chip">${n}</span>`).join(''); }
-function ribbon(p){
-  if (p.status==='preorder'){
-    const eta = p.leadDays ? etaText(p.leadDays) : '8–10 days';
-    return `<div class="ribbon">
-      <span class="badge pre">Pre-Order</span>
-      <span class="eta">ETA: ${eta}</span>
-    </div>`;
-  }
-  return `<div class="ribbon"><span class="badge">In stock</span></div>`;
-}
-function card(p){
-  const id = `img-${p.sku}`;
-  return `
-  <article class="card">
-    <div class="media">
-      ${ribbon(p)}
-      <img id="${id}" alt="${p.name}" />
-      <div class="price">${UGX(p.price)}</div>
+  <!-- Drawer Cart -->
+  <div class="drawer" id="drawer" aria-hidden="true">
+    <div class="overlay" id="overlay" tabindex="-1"></div>
+    <div class="panel" role="dialog" aria-modal="true" aria-label="Shopping cart">
+      <header>
+        <strong>Your Cart</strong>
+        <button class="btn small ghost" id="closeCart">Close</button>
+      </header>
+      <div class="items" id="cartItems"></div>
+      <div class="controls">
+        <div class="col">
+          <label>Customer name <input id="custName" placeholder="Your full name"/></label>
+          <label>Area
+            <select id="area"><option value="Kira Town">Kira Town</option><option value="Other area">Other area (we'll confirm fee)</option></select>
+          </label>
+        </div>
+        <div class="col">
+          <label>Preferred payment
+            <select id="pay"><option>MTN MoMo Pay</option><option>Airtel Money Pay</option><option>Card / Online (Stage 2)</option><option>Cash</option></select>
+          </label>
+          <label>Notes (optional) <input id="note" placeholder="e.g., deliver after 6pm"/></label>
+        </div>
+      </div>
+      <div class="paybox" id="paybox" style="display:none">
+        <div class="payrow"><span><b>Amount to pay now</b></span><b id="payAmount">UGX 0</b></div>
+        <div class="payrow" id="mtnRow" style="display:none">
+          <div><b>MTN MoMo Pay</b> — Dial <b>*165*3#</b> → Merchant ID <b>707229</b> <div class="note-inline">Reference: <b>Your Name</b></div></div>
+          <button class="copy" data-copy="707229">Copy ID</button>
+        </div>
+        <div class="payrow" id="airtelRow" style="display:none">
+          <div><b>Airtel Money Pay</b> — Dial <b>*185*9#</b> → Merchant ID <b>4370918</b> <div class="note-inline">Reference: <b>Your Name</b></div></div>
+          <button class="copy" data-copy="4370918">Copy ID</button>
+        </div>
+        <div class="payrow">
+          <label style="flex:1">Transaction ID <input id="txid" placeholder="e.g., MTN: MXXXX... / Airtel: RXXXXXXXX"/></label>
+          <label><input type="checkbox" id="paidChk"/> I’ve paid</label>
+        </div>
+      </div>
+      <div class="totals">
+        <div class="row"><span>Subtotal</span><b id="subTotal">UGX 0</b></div>
+        <div class="row"><span>Delivery</span><b id="deliveryFee">UGX 0</b></div>
+        <div class="row"><span>Total</span><b id="grandTotal">UGX 0</b></div>
+      </div>
+      <div class="checkout">
+        <button class="btn ghost" id="clearCart">Clear</button>
+        <button class="btn" id="checkoutWA">Checkout via WhatsApp</button>
+      </div>
+      <div class="help">We confirm stock promptly and deliver nationwide.</div>
     </div>
-    <div class="content">
-      <div class="meta">
-        <h3>${p.short}</h3>
-        <span class="tag">${p.tag}</span>
-      </div>
-      <p class="desc">${p.desc}</p>
-      <div class="notes">${chipList(p.notes)}</div>
-      <div class="rows">
-        <div class="row"><b>When to wear:</b> ${p.wear}</div>
-        <div class="row"><b>How to wear:</b> ${p.how}</div>
-        <div class="row"><b>Longevity:</b> ${p.longevity}</div>
-        <div class="row"><b>Projection:</b> ${p.projection}</div>
-      </div>
-      <div class="actions-row">
-        <button class="btn block add" data-sku="${p.sku}">Add to cart</button>
-      </div>
-    </div>
-  </article>`;
-}
-grid.innerHTML = PRODUCTS.map(card).join('');
+  </div>
 
-/* Load product images (simple; filenames already correct) */
-PRODUCTS.forEach(p=>{
-  const el = document.getElementById(`img-${p.sku}`);
-  el.src = p.img;
-  el.onerror = ()=>{ el.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="100%" height="100%" fill="#0f172a"/><text x="50%" y="50%" font-family="Inter, Arial" font-size="36" fill="#e9c882" text-anchor="middle" dominant-baseline="middle">${(p.short||'ETUNGANUN')}</text></svg>`); };
-});
+  <footer class="footer">© Etunganun Grooming Lounge — Your Hair. Your Skin. Your Space.</footer>
 
-/* ---------- CART / CHECKOUT ---------- */
-const load = () => JSON.parse(localStorage.getItem('egl_cart')||'{}');
-const save = cart => localStorage.setItem('egl_cart', JSON.stringify(cart));
-const countCart = cart => Object.values(cart).reduce((a,i)=>a+i.qty,0);
-const subtotal = cart => Object.values(cart).reduce((a,i)=>a+i.qty*i.price,0);
-const getProduct = sku => PRODUCTS.find(p=>p.sku===sku);
-
-function renderCount(){ const c=load(); document.getElementById('cartCount').textContent = countCart(c); }
-function addToCart(sku){
-  const cart = load(); const p = getProduct(sku); if (!p) return;
-  if (!cart[sku]) cart[sku] = { sku, name:p.name, price:p.price, qty:0, status:p.status||'in-stock' };
-  cart[sku].qty += 1; save(cart); renderCount();
-}
-document.querySelectorAll('.btn.add').forEach(b => b.addEventListener('click', e => addToCart(e.currentTarget.dataset.sku)));
-
-function renderItems(){
-  const cart = load(); const box = document.getElementById('cartItems'); const keys = Object.keys(cart);
-  if (!keys.length){ box.innerHTML = '<p style="opacity:.8">Your cart is empty.</p>'; }
-  else{
-    box.innerHTML = keys.map(sku=>{
-      const it = cart[sku]; const p = getProduct(sku);
-      return `
-        <div class="item" data-sku="${sku}">
-          <img src="${p.img}" alt="${it.name}" onerror="this.style.display='none'">
-          <div>
-            <div class="item-name">${it.name}</div>
-            <div class="item-price">${UGX(it.price)} × <span>${it.qty}</span></div>
-          </div>
-          <div class="qty">
-            <button class="dec" data-sku="${sku}">−</button>
-            <button class="inc" data-sku="${sku}">+</button>
-            <button class="rm" data-sku="${sku}">Remove</button>
-          </div>
-        </div>`;
-    }).join('');
-  }
-}
-function changeQty(sku, delta){
-  const cart = load(); if (!cart[sku]) return; cart[sku].qty += delta; if (cart[sku].qty <= 0) delete cart[sku];
-  save(cart); renderCount(); renderItems(); renderTotals(); bindItemButtons();
-}
-function computeDelivery(sub){
-  const area = document.getElementById('area').value;
-  if (area === 'Kira Town') return sub >= 500000 ? 0 : 5000;
-  return null; // other areas TBD
-}
-function renderTotals(){
-  const cart = load(); const sub = subtotal(cart); const d = computeDelivery(sub);
-  document.getElementById('subTotal').textContent = UGX(sub);
-  document.getElementById('deliveryFee').textContent = (d===null) ? 'TBD' : UGX(d);
-  document.getElementById('grandTotal').textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
-  const payAmt = document.getElementById('payAmount'); if (payAmt) payAmt.textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
-}
-function clearCart(){ localStorage.removeItem('egl_cart'); renderCount(); renderItems(); renderTotals(); }
-function bindItemButtons(){
-  document.querySelectorAll('.inc').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, +1));
-  document.querySelectorAll('.dec').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -1));
-  document.querySelectorAll('.rm').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -999));
-}
-
-/* Payment UX */
-function updatePayBox(){
-  const paySel = document.getElementById('pay').value;
-  const box = document.getElementById('paybox');
-  const mtnRow = document.getElementById('mtnRow');
-  const airtelRow = document.getElementById('airtelRow');
-  if (paySel === 'MTN MoMo Pay' || paySel === 'Airtel Money Pay'){
-    box.style.display = 'grid';
-    mtnRow.style.display = (paySel==='MTN MoMo Pay') ? 'flex' : 'none';
-    airtelRow.style.display = (paySel==='Airtel Money Pay') ? 'flex' : 'none';
-  } else {
-    box.style.display = 'none';
-  }
-  renderTotals();
-}
-function copyToClipboard(txt){
-  try{ navigator.clipboard.writeText(txt); alert('Copied: ' + txt); }
-  catch{ alert('Copy failed. Merchant ID: ' + txt); }
-}
-document.addEventListener('click', function(e){
-  if (e.target.classList.contains('copy')) copyToClipboard(e.target.dataset.copy);
-});
-
-/* WhatsApp Checkout */
-function checkoutWA(){
-  const cart = load(); const items = Object.values(cart);
-  if (!items.length){ alert('Your cart is empty.'); return; }
-
-  const name = (document.getElementById('custName').value||'').trim();
-  const area = document.getElementById('area').value;
-  const pay  = document.getElementById('pay').value;
-  const note = (document.getElementById('note').value||'').trim();
-  const sub = subtotal(cart);
-  const d = computeDelivery(sub);
-
-  let txid = '';
-  if (pay === 'MTN MoMo Pay' || pay === 'Airtel Money Pay'){
-    txid = (document.getElementById('txid').value||'').trim();
-    const paid = document.getElementById('paidChk').checked;
-    if (!paid || !txid){ alert('Please complete payment and enter your Transaction ID, then tick “I’ve paid”.'); return; }
-  }
-
-  const lines = items.map(i => `• ${i.name} × ${i.qty} — ${UGX(i.qty*i.price)}${ i.status==='preorder' ? ' (PRE-ORDER)' : '' }`).join('%0A');
-  const deliveryLine = (d===null) ? 'Delivery: TBD (outside Kira)' : (d===0 ? 'Delivery: FREE (Kira, order ≥ 500,000)' : 'Delivery: UGX 5,000 (Kira)');
-  const grand = (d===null) ? UGX(sub) + ' + delivery' : UGX(sub + d);
-
-  const header = `Etunganun catalogue order`;
-  const details = `Name: ${name||'(not provided)'}%0AArea: ${area}%0APayment: ${pay}%0A${ txid ? ('TxID: ' + txid) : '' }%0ANotes: ${note||'-'}`;
-  const totals = `Subtotal: ${UGX(sub)}%0A${deliveryLine}%0ATotal: ${grand}`;
-
-  const msg = `${header}%0A%0A${lines}%0A%0A${totals}%0A%0A${details}`;
-  window.location.href = "https://wa.me/256393101757?text=" + msg;
-}
-
-/* Advisor scoring */
-function scoreProduct(prefs, p){
-  let s=0;
-  if (['Night out','Date','Party'].includes(prefs.occ)){
-    if (/Warm|Night|Gourmand|Oud|Strong|Opulent/.test(p.tag) || /Addictive|Intense|Leather/.test(p.desc)) s+=2;
-  } else if (['Office','Everyday'].includes(prefs.occ)){
-    if (/Fresh|Everyday|Day/.test(p.tag)) s+=2;
-  }
-  if (['Hot','Warm'].includes(prefs.weather)){ if (/Fresh|Everyday/.test(p.tag)) s+=2; if (/Gourmand|Warm|Oud|Intense|Opulent/.test(p.tag)) s-=1; }
-  if (['Cool','Rainy'].includes(prefs.weather)){ if (/Warm|Night|Gourmand|Oud|Strong|Opulent/.test(p.tag)) s+=2; }
-  if (prefs.sweet>=7 && /Gourmand|Warm|Sweet/.test(p.tag)) s+=2;
-  if (prefs.sweet<=3 && /Fresh|Day/.test(p.tag)) s+=2;
-  if (prefs.proj>=7 && (/Intense|Oud|Opulent|Black/.test(p.desc+p.tag))) s+=2;
-  if (prefs.proj<=3 && /Fresh|Day/.test(p.desc+p.tag)) s+=1;
-  if (prefs.note==='Vanilla/Gourmand' && /Vanilla|Sweet|Warm/.test(p.desc+p.tag)) s+=2;
-  if (prefs.note==='Woody/Spicy' && /Woody|Spicy|Oud|Sandalwood|Amber/.test(p.desc+p.tag)) s+=2;
-  if (prefs.note==='Fresh/Citrus' && /Citrus|Bergamot|Yuzu/.test(p.desc+p.tag)) s+=2;
-  if (prefs.note==='Smoky/Tobacco' && /Tobacco|Oud|Incense/.test(p.desc+p.tag)) s+=3;
-  if (p.status==='in-stock') s+=0.5;
-  return s;
-}
-function runAdvisor(){
-  const prefs = {
-    occ: document.getElementById('fOcc').value,
-    weather: document.getElementById('fWeather').value,
-    sweet: parseInt(document.getElementById('rSweet').value,10),
-    proj: parseInt(document.getElementById('rProj').value,10),
-    note: document.getElementById('fNote').value,
-    sens: document.getElementById('fSens').value
-  };
-  const ranked = [...PRODUCTS].map(p => ({...p, score: scoreProduct(prefs,p)}))
-    .sort((a,b)=>b.score-a.score).slice(0,3);
-  const box = document.getElementById('recos');
-  box.innerHTML = ranked.map(r => `
-    <div class="reco">
-      <div class="meta">
-        <span class="name">${r.short||r.name}</span>
-        <span class="note-inline">${r.tag||''} ${ r.status==='preorder' ? ' • PRE-ORDER' : '' }</span>
-        <small>${r.desc||''}</small>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <b>${UGX(r.price)}</b>
-        <button class="btn small" data-add="${r.sku}">Add</button>
-      </div>
-    </div>`).join('');
-  document.querySelectorAll('[data-add]').forEach(b=>b.onclick=e=>{ addToCart(e.target.dataset.add); alert('Added to cart!'); });
-}
-
-/* Bindings */
-document.getElementById('btnWhatsApp').addEventListener('click', function(e){
-  e.preventDefault();
-  window.location.href = "https://wa.me/256393101757?text=" + encodeURIComponent("Hello Etunganun! I’d like to order from your catalogue.");
-});
-document.getElementById('openCart').onclick = ()=>{ document.getElementById('drawer').classList.add('open'); renderItems(); renderTotals(); bindItemButtons(); updatePayBox(); };
-document.getElementById('openCartSticky').onclick = ()=>{ document.getElementById('drawer').classList.add('open'); renderItems(); renderTotals(); bindItemButtons(); updatePayBox(); };
-document.getElementById('closeCart').onclick = ()=>document.getElementById('drawer').classList.remove('open');
-document.getElementById('overlay').onclick = ()=>document.getElementById('drawer').classList.remove('open');
-document.getElementById('clearCart').onclick = clearCart;
-document.getElementById('checkoutWA').onclick = checkoutWA;
-document.getElementById('area').onchange = renderTotals;
-document.getElementById('pay').onchange = updatePayBox;
-document.getElementById('runAdvisor').onclick = runAdvisor;
-document.getElementById('clearRecos').onclick = ()=>{ document.getElementById('recos').innerHTML=''; };
-document.getElementById('rSweet').oninput = e=>document.getElementById('rSweetVal').textContent = e.target.value;
-document.getElementById('rProj').oninput = e=>document.getElementById('rProjVal').textContent = e.target.value;
-
-renderCount();
-
-/* --------- Remove white background from logo on the fly --------- */
-function knockoutWhiteBackground(imgEl,threshold=245,softness=15){
-  try{
-    const img=new Image(); img.crossOrigin="anonymous";
-    img.onload=function(){
-      const w=img.naturalWidth,h=img.naturalHeight; if(!w||!h)return;
-      const canvas=document.createElement("canvas"); canvas.width=w; canvas.height=h;
-      const ctx=canvas.getContext("2d"); ctx.drawImage(img,0,0,w,h);
-      const data=ctx.getImageData(0,0,w,h); const px=data.data;
-      for(let i=0;i<px.length;i+=4){
-        const r=px[i],g=px[i+1],b=px[i+2];
-        const isNearWhite=(r>=threshold&&g>=threshold&&b>=threshold);
-        if(isNearWhite){
-          const lightness=(r+g+b)/3;
-          const alpha=Math.max(0,255-(lightness-threshold+softness)*(255/Math.max(1,softness)));
-          px[i+3]=Math.min(px[i+3],alpha);
-          if(lightness>=threshold+softness)px[i+3]=0;
-        }
-      }
-      ctx.putImageData(data,0,0);
-      imgEl.src=canvas.toDataURL("image/png");
-      imgEl.style.mixBlendMode="normal"; imgEl.style.filter="none";
-    };
-    img.src=imgEl.src;
-  }catch(e){/* keep CSS fallback */}
-}
-window.addEventListener("load",function(){
-  const logo=document.getElementById("logo");
-  if(logo&&logo.complete)knockoutWhiteBackground(logo);
-  else if(logo)logo.addEventListener("load",()=>knockoutWhiteBackground(logo));
-});
-</script>
+  <script src="app.js"></script>
+  <script>
+    // Register PWA service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+    }
+  </script>
 </body>
 </html>
