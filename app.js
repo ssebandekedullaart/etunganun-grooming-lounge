@@ -127,15 +127,15 @@ function card(p){
 }
 
 function renderGrid(){
-  $('#grid').innerHTML = PRODUCTS.map(card).join('');
-  $$('.btn.add').forEach(b => b.addEventListener('click', e => addToCart(e.currentTarget.dataset.sku)));
+  document.getElementById('grid').innerHTML = PRODUCTS.map(card).join('');
+  document.querySelectorAll('.btn.add').forEach(b => b.addEventListener('click', e => addToCart(e.currentTarget.dataset.sku)));
 }
 
 /* ---------- Cart ---------- */
 function renderCounts(){
   const c = loadCart();
   const count = cartCount(c);
-  $$('.js-cart-count').forEach(el => el.textContent = count);
+  document.querySelectorAll('.js-cart-count').forEach(el => el.textContent = count);
 }
 
 function addToCart(sku){
@@ -148,18 +148,18 @@ function addToCart(sku){
 }
 
 function openCart(){
-  $('#drawer').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
   renderItems(); renderTotals(); bindItemButtons(); updatePayBox();
 }
-function closeCart(){ $('#drawer').classList.remove('open'); }
+function closeCart(){ document.getElementById('drawer').classList.remove('open'); }
 
-$('#openCartHeader').onclick = openCart;
-$('#openCartSticky').onclick = openCart;
-$('#closeCart').onclick = closeCart;
-$('#overlay').onclick = closeCart;
+document.getElementById('openCartHeader').onclick = openCart;
+document.getElementById('openCartSticky').onclick = openCart;
+document.getElementById('closeCart').onclick = closeCart;
+document.getElementById('overlay').onclick = closeCart;
 
 function renderItems(){
-  const cart = loadCart(), box = $('#cartItems'), keys = Object.keys(cart);
+  const cart = loadCart(), box = document.getElementById('cartItems'), keys = Object.keys(cart);
   if (!keys.length){ box.innerHTML = '<p style="opacity:.8">Your cart is empty.</p>'; return; }
   box.innerHTML = keys.map(sku=>{
     const it = cart[sku], p = PRODUCTS.find(x=>x.sku===sku);
@@ -189,42 +189,65 @@ function changeQty(sku, delta){
 }
 
 function bindItemButtons(){
-  $$('.inc').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, +1));
-  $$('.dec').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -1));
-  $$('.rm').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -999));
+  document.querySelectorAll('.inc').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, +1));
+  document.querySelectorAll('.dec').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -1));
+  document.querySelectorAll('.rm').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -999));
 }
 
 function computeDelivery(sub){
-  const area = $('#area').value;
+  const area = document.getElementById('area').value;
   if (area === 'Kira Town') return sub >= 500000 ? 0 : 5000;
   return null; // TBD for other areas
 }
 
 function renderTotals(){
   const cart = loadCart(); const sub = cartSubtotal(cart); const d = computeDelivery(sub);
-  $('#subTotal').textContent = UGX(sub);
-  $('#deliveryFee').textContent = (d===null) ? 'TBD' : UGX(d);
-  $('#grandTotal').textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
-  const payAmt = $('#payAmount'); if (payAmt) payAmt.textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
+  document.getElementById('subTotal').textContent = UGX(sub);
+  document.getElementById('deliveryFee').textContent = (d===null) ? 'TBD' : UGX(d);
+  document.getElementById('grandTotal').textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
+  const payAmt = document.getElementById('payAmount'); if (payAmt) payAmt.textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
 }
-$('#area').onchange = renderTotals;
-$('#clearCart').onclick = ()=>{ localStorage.removeItem('egl_cart'); renderCounts(); renderItems(); renderTotals(); };
+document.getElementById('area').onchange = renderTotals;
+document.getElementById('clearCart').onclick = ()=>{ localStorage.removeItem('egl_cart'); renderCounts(); renderItems(); renderTotals(); };
 
-$('#checkoutWA').onclick = ()=>{
+/* Payment visibility + copy */
+function updatePayBox(){
+  const paySel = document.getElementById('pay').value;
+  const box = document.getElementById('paybox');
+  const mtnRow = document.getElementById('mtnRow');
+  const airtelRow = document.getElementById('airtelRow');
+  if (paySel === 'MTN MoMo Pay' || paySel === 'Airtel Money Pay'){
+    box.style.display = 'grid';
+    mtnRow.style.display = (paySel==='MTN MoMo Pay') ? 'flex' : 'none';
+    airtelRow.style.display = (paySel==='Airtel Money Pay') ? 'flex' : 'none';
+  } else {
+    box.style.display = 'none';
+  }
+  renderTotals();
+}
+function copyToClipboard(txt){
+  try{ navigator.clipboard.writeText(txt); alert('Copied: ' + txt); }
+  catch{ alert('Copy failed. Merchant ID: ' + txt); }
+}
+document.addEventListener('click', e=>{
+  if (e.target.classList.contains('copy')) copyToClipboard(e.target.dataset.copy);
+});
+
+document.getElementById('checkoutWA').onclick = ()=>{
   const cart = loadCart(); const items = Object.values(cart);
   if (!items.length){ alert('Your cart is empty.'); return; }
 
-  const name = ($('#custName').value||'').trim();
-  const area = $('#area').value;
-  const pay  = $('#pay').value;
-  const note = ($('#note').value||'').trim();
+  const name = (document.getElementById('custName').value||'').trim();
+  const area = document.getElementById('area').value;
+  const pay  = document.getElementById('pay').value;
+  const note = (document.getElementById('note').value||'').trim();
   const sub = cartSubtotal(cart);
   const d = computeDelivery(sub);
 
   let txid = '';
   if (pay === 'MTN MoMo Pay' || pay === 'Airtel Money Pay'){
-    txid = ($('#txid').value||'').trim();
-    const paid = $('#paidChk').checked;
+    txid = (document.getElementById('txid').value||'').trim();
+    const paid = document.getElementById('paidChk').checked;
     if (!paid || !txid){ alert('Please complete payment and enter your Transaction ID, then tick “I’ve paid”.'); return; }
   }
 
@@ -262,16 +285,16 @@ function scoreProduct(prefs, p){
 }
 function runAdvisor(){
   const prefs = {
-    occ: $('#fOcc').value,
-    weather: $('#fWeather').value,
-    sweet: parseInt($('#rSweet').value,10),
-    proj: parseInt($('#rProj').value,10),
-    note: $('#fNote').value,
-    sens: $('#fSens').value
+    occ: document.getElementById('fOcc').value,
+    weather: document.getElementById('fWeather').value,
+    sweet: parseInt(document.getElementById('rSweet').value,10),
+    proj: parseInt(document.getElementById('rProj').value,10),
+    note: document.getElementById('fNote').value,
+    sens: document.getElementById('fSens').value
   };
   const ranked = [...PRODUCTS].map(p => ({...p, score: scoreProduct(prefs,p)}))
     .sort((a,b)=>b.score-a.score).slice(0,3);
-  const box = $('#recos');
+  const box = document.getElementById('recos');
   box.innerHTML = ranked.map(r => `
     <div class="reco">
       <div class="meta">
@@ -284,46 +307,15 @@ function runAdvisor(){
         <button class="btn small" data-add="${r.sku}">Add</button>
       </div>
     </div>`).join('');
-  $$('[data-add]').forEach(b=>b.onclick=e=>{ addToCart(e.target.dataset.add); alert('Added to cart!'); });
+  document.querySelectorAll('[data-add]').forEach(b=>b.onclick=e=>{ addToCart(e.target.dataset.add); alert('Added to cart!'); });
 }
-$('#runAdvisor').onclick = runAdvisor;
-$('#clearRecos').onclick = ()=>{ $('#recos').innerHTML=''; };
-$('#rSweet').oninput = e=>$('#rSweetVal').textContent = e.target.value;
-$('#rProj').oninput = e=>$('#rProjVal').textContent = e.target.value;
+document.getElementById('runAdvisor').onclick = runAdvisor;
+document.getElementById('clearRecos').onclick = ()=>{ document.getElementById('recos').innerHTML=''; };
+document.getElementById('rSweet').oninput = e=>document.getElementById('rSweetVal').textContent = e.target.value;
+document.getElementById('rProj').oninput = e=>document.getElementById('rProjVal').textContent = e.target.value;
 
-/* ---------- Logo background cleanup (optional) ---------- */
-function knockoutWhiteBackground(imgEl,threshold=245,softness=15){
-  try{
-    const img=new Image(); img.crossOrigin="anonymous";
-    img.onload=function(){
-      const w=img.naturalWidth,h=img.naturalHeight; if(!w||!h)return;
-      const canvas=document.createElement("canvas"); canvas.width=w; canvas.height=h;
-      const ctx=canvas.getContext("2d"); ctx.drawImage(img,0,0,w,h);
-      const data=ctx.getImageData(0,0,w,h); const px=data.data;
-      for(let i=0;i<px.length;i+=4){
-        const r=px[i],g=px[i+1],b=px[i+2];
-        const isNearWhite=(r>=threshold&&g>=threshold&&b>=threshold);
-        if(isNearWhite){
-          const lightness=(r+g+b)/3;
-          const alpha=Math.max(0,255-(lightness-threshold+softness)*(255/Math.max(1,softness)));
-          px[i+3]=Math.min(px[i+3],alpha);
-          if(lightness>=threshold+softness)px[i+3]=0;
-        }
-      }
-      ctx.putImageData(data,0,0);
-      imgEl.src=canvas.toDataURL("image/png");
-    };
-    img.src=imgEl.src;
-  }catch(e){}
-}
-window.addEventListener('load', ()=>{
-  const logo=$('#logo');
-  if(logo&&logo.complete)knockoutWhiteBackground(logo);
-  else if(logo)logo.addEventListener("load",()=>knockoutWhiteBackground(logo));
-  renderGrid();
-  renderCounts();
-  $('#btnWhatsApp').addEventListener('click', e=>{
-    e.preventDefault();
-    window.location.href = "https://wa.me/256393101757?text=" + encodeURIComponent("Hello Etunganun! I’d like to order from your catalogue.");
-  });
+/* WhatsApp CTA in header */
+document.getElementById('btnWhatsApp').addEventListener('click', e=>{
+  e.preventDefault();
+  window.location.href = "https://wa.me/256393101757?text=" + encodeURIComponent("Hello Etunganun! I’d like to order from your catalogue.");
 });
