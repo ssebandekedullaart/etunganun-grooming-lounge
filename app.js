@@ -1,14 +1,10 @@
-/* ---------- Utilities ---------- */
+/* ---------- Safe DOM helpers ---------- */
 const $ = sel => document.querySelector(sel);
 const $$ = sel => document.querySelectorAll(sel);
+const on = (el, evt, fn) => el && el.addEventListener(evt, fn);
 const UGX = n => 'UGX ' + (n||0).toLocaleString('en-US');
 
-const loadCart = () => JSON.parse(localStorage.getItem('egl_cart')||'{}');
-const saveCart = cart => localStorage.setItem('egl_cart', JSON.stringify(cart));
-const cartCount = cart => Object.values(cart).reduce((a,i)=>a+i.qty,0);
-const cartSubtotal = cart => Object.values(cart).reduce((a,i)=>a+i.qty*i.price,0);
-
-/* ---------- Products ---------- */
+/* ---------- Products (inline, no fetch) ---------- */
 const PRODUCTS = [
   {
     sku:"MD100",
@@ -87,7 +83,7 @@ const PRODUCTS = [
   }
 ];
 
-/* ---------- Grid Rendering ---------- */
+/* ---------- Render helpers ---------- */
 function chipList(arr){ return (arr||[]).map(n=>`<span class="chip">${n}</span>`).join(''); }
 function ribbon(p){
   if (p.status==='preorder'){
@@ -126,21 +122,34 @@ function card(p){
   </article>`;
 }
 
+/* ---------- Cart state ---------- */
+const loadCart = () => JSON.parse(localStorage.getItem('egl_cart')||'{}');
+const saveCart = cart => localStorage.setItem('egl_cart', JSON.stringify(cart));
+const cartCount = cart => Object.values(cart).reduce((a,i)=>a+i.qty,0);
+const cartSubtotal = cart => Object.values(cart).reduce((a,i)=>a+i.qty*i.price,0);
+
+/* ---------- UI renderers ---------- */
 function renderGrid(){
-  document.getElementById('grid').innerHTML = PRODUCTS.map(card).join('');
-  document.querySelectorAll('.btn.add').forEach(b => b.addEventListener('click', e => addToCart(e.currentTarget.dataset.sku)));
+  const grid = $('#grid');
+  if (!grid){ console.error('Grid container #grid not found'); return; }
+  try{
+    grid.innerHTML = PRODUCTS.map(card).join('');
+    $$('.btn.add').forEach(b => b.addEventListener('click', e => addToCart(e.currentTarget.dataset.sku)));
+  }catch(err){
+    console.error('Render grid failed:', err);
+    grid.innerHTML = '<p style="opacity:.8">We had a display hiccup. Please refresh.</p>';
+  }
 }
 
-/* ---------- Cart ---------- */
 function renderCounts(){
-  const c = loadCart();
-  const count = cartCount(c);
-  document.querySelectorAll('.js-cart-count').forEach(el => el.textContent = count);
+  const c = loadCart(), count = cartCount(c);
+  $$('.js-cart-count').forEach(el => (el.textContent = count));
 }
 
 function addToCart(sku){
   const cart = loadCart();
-  const p = PRODUCTS.find(x=>x.sku===sku); if(!p) return;
+  const p = PRODUCTS.find(x=>x.sku===sku);
+  if(!p){ console.warn('Product not found for sku', sku); return; }
   if (!cart[sku]) cart[sku] = { sku, name:p.name, short:p.short, price:p.price, qty:0, status:p.status||'in-stock' };
   cart[sku].qty += 1;
   saveCart(cart);
@@ -148,28 +157,26 @@ function addToCart(sku){
 }
 
 function openCart(){
-  document.getElementById('drawer').classList.add('open');
+  const dr = $('#drawer'); if(!dr) return;
+  dr.classList.add('open');
   renderItems(); renderTotals(); bindItemButtons(); updatePayBox();
 }
-function closeCart(){ document.getElementById('drawer').classList.remove('open'); }
-
-document.getElementById('openCartHeader').onclick = openCart;
-document.getElementById('openCartSticky').onclick = openCart;
-document.getElementById('closeCart').onclick = closeCart;
-document.getElementById('overlay').onclick = closeCart;
+function closeCart(){ const dr=$('#drawer'); if(dr) dr.classList.remove('open'); }
 
 function renderItems(){
-  const cart = loadCart(), box = document.getElementById('cartItems'), keys = Object.keys(cart);
+  const cart = loadCart(), box = $('#cartItems'); if(!box) return;
+  const keys = Object.keys(cart);
   if (!keys.length){ box.innerHTML = '<p style="opacity:.8">Your cart is empty.</p>'; return; }
   box.innerHTML = keys.map(sku=>{
     const it = cart[sku], p = PRODUCTS.find(x=>x.sku===sku);
+    const img = p ? p.img : '';
     return `
       <div class="item" data-sku="${sku}">
-        <img src="${p.img}" alt="${it.name}" onerror="this.style.display='none'">
+        <img src="${img}" alt="${it?.name||sku}" onerror="this.style.display='none'">
         <div>
-          <div class="item-name">${it.name}</div>
+          <div class="item-name">${it?.name||sku}</div>
           <div class="item-price">${UGX(it.price)} × <span>${it.qty}</span></div>
-          ${ (p.status==='preorder') ? '<small>Pre-order • ETA ~10 days</small>' : '' }
+          ${ (p && p.status==='preorder') ? '<small>Pre-order • ETA ~10 days</small>' : '' }
         </div>
         <div class="qty">
           <button class="dec" data-sku="${sku}" aria-label="Decrease">−</button>
@@ -181,41 +188,38 @@ function renderItems(){
 }
 
 function changeQty(sku, delta){
-  const cart = loadCart();
-  if (!cart[sku]) return;
+  const cart = loadCart(); if (!cart[sku]) return;
   cart[sku].qty += delta;
   if (cart[sku].qty <= 0) delete cart[sku];
   saveCart(cart); renderCounts(); renderItems(); renderTotals(); bindItemButtons();
 }
 
 function bindItemButtons(){
-  document.querySelectorAll('.inc').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, +1));
-  document.querySelectorAll('.dec').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -1));
-  document.querySelectorAll('.rm').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -999));
+  $$('.inc').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, +1));
+  $$('.dec').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -1));
+  $$('.rm').forEach(b=>b.onclick = e=>changeQty(e.target.dataset.sku, -999));
 }
 
 function computeDelivery(sub){
-  const area = document.getElementById('area').value;
+  const area = $('#area')?.value;
   if (area === 'Kira Town') return sub >= 500000 ? 0 : 5000;
-  return null; // TBD for other areas
+  return null; // other areas TBD
 }
 
 function renderTotals(){
   const cart = loadCart(); const sub = cartSubtotal(cart); const d = computeDelivery(sub);
-  document.getElementById('subTotal').textContent = UGX(sub);
-  document.getElementById('deliveryFee').textContent = (d===null) ? 'TBD' : UGX(d);
-  document.getElementById('grandTotal').textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
-  const payAmt = document.getElementById('payAmount'); if (payAmt) payAmt.textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
+  const subEl = $('#subTotal'), delEl = $('#deliveryFee'), totEl = $('#grandTotal'), payAmt = $('#payAmount');
+  if (subEl) subEl.textContent = UGX(sub);
+  if (delEl) delEl.textContent = (d===null) ? 'TBD' : UGX(d);
+  if (totEl) totEl.textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
+  if (payAmt) payAmt.textContent = (d===null) ? (UGX(sub)+' + delivery') : UGX(sub+d);
 }
-document.getElementById('area').onchange = renderTotals;
-document.getElementById('clearCart').onclick = ()=>{ localStorage.removeItem('egl_cart'); renderCounts(); renderItems(); renderTotals(); };
 
 /* Payment visibility + copy */
 function updatePayBox(){
-  const paySel = document.getElementById('pay').value;
-  const box = document.getElementById('paybox');
-  const mtnRow = document.getElementById('mtnRow');
-  const airtelRow = document.getElementById('airtelRow');
+  const paySel = $('#pay')?.value;
+  const box = $('#paybox'), mtnRow = $('#mtnRow'), airtelRow = $('#airtelRow');
+  if (!box || !mtnRow || !airtelRow) return;
   if (paySel === 'MTN MoMo Pay' || paySel === 'Airtel Money Pay'){
     box.style.display = 'grid';
     mtnRow.style.display = (paySel==='MTN MoMo Pay') ? 'flex' : 'none';
@@ -229,40 +233,8 @@ function copyToClipboard(txt){
   try{ navigator.clipboard.writeText(txt); alert('Copied: ' + txt); }
   catch{ alert('Copy failed. Merchant ID: ' + txt); }
 }
-document.addEventListener('click', e=>{
-  if (e.target.classList.contains('copy')) copyToClipboard(e.target.dataset.copy);
-});
 
-document.getElementById('checkoutWA').onclick = ()=>{
-  const cart = loadCart(); const items = Object.values(cart);
-  if (!items.length){ alert('Your cart is empty.'); return; }
-
-  const name = (document.getElementById('custName').value||'').trim();
-  const area = document.getElementById('area').value;
-  const pay  = document.getElementById('pay').value;
-  const note = (document.getElementById('note').value||'').trim();
-  const sub = cartSubtotal(cart);
-  const d = computeDelivery(sub);
-
-  let txid = '';
-  if (pay === 'MTN MoMo Pay' || pay === 'Airtel Money Pay'){
-    txid = (document.getElementById('txid').value||'').trim();
-    const paid = document.getElementById('paidChk').checked;
-    if (!paid || !txid){ alert('Please complete payment and enter your Transaction ID, then tick “I’ve paid”.'); return; }
-  }
-
-  const lines = items.map(i => `• ${i.name} × ${i.qty} — ${UGX(i.qty*i.price)}${ i.status==='preorder' ? ' (PRE-ORDER)' : '' }`).join('%0A');
-  const deliveryLine = (d===null) ? 'Delivery: TBD (outside Kira)' : (d===0 ? 'Delivery: FREE (Kira, order ≥ 500,000)' : 'Delivery: UGX 5,000 (Kira)');
-  const grand = (d===null) ? UGX(sub) + ' + delivery' : UGX(sub + d);
-
-  const header = `Etunganun catalogue order`;
-  const details = `Name: ${name||'(not provided)'}%0AArea: ${area}%0APayment: ${pay}%0A${ txid ? ('TxID: ' + txid) : '' }%0ANotes: ${note||'-'}`;
-  const totals = `Subtotal: ${UGX(sub)}%0A${deliveryLine}%0ATotal: ${grand}`;
-  const msg = `${header}%0A%0A${lines}%0A%0A${totals}%0A%0A${details}`;
-  window.location.href = "https://wa.me/256393101757?text=" + msg;
-};
-
-/* ---------- Advisor ---------- */
+/* Advisor */
 function scoreProduct(prefs, p){
   let s=0;
   if (['Night out','Date','Party'].includes(prefs.occ)){
@@ -285,16 +257,16 @@ function scoreProduct(prefs, p){
 }
 function runAdvisor(){
   const prefs = {
-    occ: document.getElementById('fOcc').value,
-    weather: document.getElementById('fWeather').value,
-    sweet: parseInt(document.getElementById('rSweet').value,10),
-    proj: parseInt(document.getElementById('rProj').value,10),
-    note: document.getElementById('fNote').value,
-    sens: document.getElementById('fSens').value
+    occ: $('#fOcc')?.value || 'Everyday',
+    weather: $('#fWeather')?.value || 'Warm',
+    sweet: parseInt($('#rSweet')?.value || '5',10),
+    proj: parseInt($('#rProj')?.value || '6',10),
+    note: $('#fNote')?.value || 'Woody/Spicy',
+    sens: $('#fSens')?.value || 'No'
   };
   const ranked = [...PRODUCTS].map(p => ({...p, score: scoreProduct(prefs,p)}))
     .sort((a,b)=>b.score-a.score).slice(0,3);
-  const box = document.getElementById('recos');
+  const box = $('#recos'); if (!box) return;
   box.innerHTML = ranked.map(r => `
     <div class="reco">
       <div class="meta">
@@ -307,15 +279,62 @@ function runAdvisor(){
         <button class="btn small" data-add="${r.sku}">Add</button>
       </div>
     </div>`).join('');
-  document.querySelectorAll('[data-add]').forEach(b=>b.onclick=e=>{ addToCart(e.target.dataset.add); alert('Added to cart!'); });
+  $$('[data-add]').forEach(b=>b.onclick=e=>{ addToCart(e.target.dataset.add); alert('Added to cart!'); });
 }
-document.getElementById('runAdvisor').onclick = runAdvisor;
-document.getElementById('clearRecos').onclick = ()=>{ document.getElementById('recos').innerHTML=''; };
-document.getElementById('rSweet').oninput = e=>document.getElementById('rSweetVal').textContent = e.target.value;
-document.getElementById('rProj').oninput = e=>document.getElementById('rProjVal').textContent = e.target.value;
 
-/* WhatsApp CTA in header */
-document.getElementById('btnWhatsApp').addEventListener('click', e=>{
-  e.preventDefault();
-  window.location.href = "https://wa.me/256393101757?text=" + encodeURIComponent("Hello Etunganun! I’d like to order from your catalogue.");
+/* ---------- Init (prevents race conditions) ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  // Render products first
+  renderGrid();
+  renderCounts();
+
+  // Safe binds (won’t throw if element missing)
+  on($('#openCartHeader'), 'click', openCart);
+  on($('#openCartSticky'), 'click', openCart);
+  on($('#closeCart'), 'click', closeCart);
+  on($('#overlay'), 'click', closeCart);
+  on($('#clearCart'), 'click', ()=>{ localStorage.removeItem('egl_cart'); renderCounts(); renderItems(); renderTotals(); });
+  on($('#area'), 'change', renderTotals);
+  on($('#pay'), 'change', updatePayBox);
+  on($('#checkoutWA'), 'click', checkoutWA);
+  on($('#runAdvisor'), 'click', runAdvisor);
+  on($('#clearRecos'), 'click', ()=>{ const box=$('#recos'); if(box) box.innerHTML=''; });
+  on($('#rSweet'), 'input', e=>{ const t=$('#rSweetVal'); if(t) t.textContent=e.target.value; });
+  on($('#rProj'), 'input', e=>{ const t=$('#rProjVal'); if(t) t.textContent=e.target.value; });
+
+  on($('#btnWhatsApp'),'click', e=>{
+    e.preventDefault();
+    window.location.href = "https://wa.me/256393101757?text=" + encodeURIComponent("Hello Etunganun! I’d like to order from your catalogue.");
+  });
 });
+
+/* Checkout via WhatsApp */
+function checkoutWA(){
+  const cart = loadCart(); const items = Object.values(cart);
+  if (!items.length){ alert('Your cart is empty.'); return; }
+
+  const name = ($('#custName')?.value||'').trim();
+  const area = $('#area')?.value || 'Kira Town';
+  const pay  = $('#pay')?.value || 'Cash';
+  const note = ($('#note')?.value||'').trim();
+  const sub = cartSubtotal(cart);
+  const d = computeDelivery(sub);
+
+  let txid = '';
+  if (pay === 'MTN MoMo Pay' || pay === 'Airtel Money Pay'){
+    txid = ($('#txid')?.value||'').trim();
+    const paid = $('#paidChk')?.checked;
+    if (!paid || !txid){ alert('Please complete payment and enter your Transaction ID, then tick “I’ve paid”.'); return; }
+  }
+
+  const lines = items.map(i => `• ${i.name} × ${i.qty} — ${UGX(i.qty*i.price)}${ i.status==='preorder' ? ' (PRE-ORDER)' : '' }`).join('%0A');
+  const deliveryLine = (d===null) ? 'Delivery: TBD (outside Kira)' :
+                       (d===0 ? 'Delivery: FREE (Kira, order ≥ 500,000)' : 'Delivery: UGX 5,000 (Kira)');
+  const grand = (d===null) ? UGX(sub) + ' + delivery' : UGX(sub + d);
+
+  const header = `Etunganun catalogue order`;
+  const details = `Name: ${name||'(not provided)'}%0AArea: ${area}%0APayment: ${pay}%0A${ txid ? ('TxID: ' + txid) : '' }%0ANotes: ${note||'-'}`;
+  const totals = `Subtotal: ${UGX(sub)}%0A${deliveryLine}%0ATotal: ${grand}`;
+  const msg = `${header}%0A%0A${lines}%0A%0A${totals}%0A%0A${details}`;
+  window.location.href = "https://wa.me/256393101757?text=" + msg;
+}
