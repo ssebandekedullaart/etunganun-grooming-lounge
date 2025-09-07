@@ -1,4 +1,4 @@
-/* Brand theme (your palette) */
+/* Brand theme */
 :root{
   --gold:#B77A2A; --gold2:#F4D5A1; --paper:#FEFBF6;
   --bg:#121212; --text:#F2F2F2; --line:rgba(255,255,255,.12);
@@ -12,12 +12,14 @@ a{color:#F9DBAF;text-decoration:none}
 /* Header */
 .hdr{position:sticky;top:0;z-index:40;background:#111;border-bottom:1px solid var(--line)}
 .hdr__row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{display:flex;align-items:center;gap:10px;color:inherit}
-.brand__logo{width:48px;height:48px;object-fit:contain;border-radius:8px}
-.brand__text h1{margin:0;color:var(--gold);font-size:1.1rem}
-.brand__text p{margin:0;opacity:.8;font-size:.9rem}
+.brand{display:flex;align-items:center;gap:10px;color:inherit;min-width:0}
+.brand__logo{width:44px;height:44px;object-fit:contain;border-radius:8px;flex:0 0 auto}
+.brand__text{min-width:0}
+.brand__text h1{margin:0;color:var(--gold);font-size:1.07rem;line-height:1.1}
+.brand__text p{margin:2px 0 0;opacity:.8;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58vw}
+@media (min-width:900px){.brand__text p{max-width:none}}
 .hdr__actions{display:flex;gap:8px}
-.btn{padding:10px 14px;border-radius:12px;border:1px solid var(--line);font-weight:800;background:var(--gold);color:#111}
+.btn{padding:10px 14px;border-radius:12px;border:1px solid var(--line);font-weight:800;background:var(--gold);color:#111;white-space:nowrap}
 .btn.ghost{background:transparent;color:var(--text)}
 
 /* Catbar */
@@ -67,7 +69,8 @@ a{color:#F9DBAF;text-decoration:none}
 .thumbbar img{width:62px;height:62px;border-radius:10px;object-fit:cover;border:1px solid var(--line);opacity:.9;cursor:pointer}
 .thumbbar img.active{outline:2px solid var(--gold2);opacity:1}
 .pcontent{padding:12px}
-.meta{display:flex;justify-content:space-between}
+.meta{display:flex;justify-content:space-between;gap:8px}
+.meta h4{margin:0}
 .tag{padding:6px 10px;border-radius:999px;background:#151515;border:1px solid var(--line);color:#ddd}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:.85rem;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#151515;color:#ddd}

@@ -4,6 +4,7 @@ const $$ = sel => document.querySelectorAll(sel);
 const on = (el, evt, fn) => el && el.addEventListener(evt, fn);
 const UGX = n => 'UGX ' + (n||0).toLocaleString('en-US');
 
+<<<<<<< HEAD
 /* ---------- Products (inline, no fetch) ---------- */
 const PRODUCTS = [
   {
@@ -92,6 +93,33 @@ function ribbon(p){
     return `<div class="ribbon"><span class="badge pre">Pre-Order</span><span class="eta">ETA: ~${txt}</span></div>`;
   }
   return `<div class="ribbon"><span class="badge">In stock</span></div>`;
+=======
+/* --- small helper to fetch JSON from root --- */
+async function loadJSON(path){ const r = await fetch(path, {cache:'no-store'}); return r.json(); }
+const loadProducts = () => loadJSON('products.json');
+const loadCats     = () => loadJSON('categories.json');
+
+/* ===================== HOME: ADVISOR ===================== */
+const adviceEl = $('#adviceResults');
+const occ = $('#occ'), wea = $('#wea'), vibe = $('#vibe'), proj = $('#proj'), focus = $('#focus');
+const vibeVal = $('#vibeVal'), projVal = $('#projVal');
+
+if (vibe) vibe.oninput = e => vibeVal.textContent = e.target.value;
+if (proj) proj.oninput = e => projVal.textContent = e.target.value;
+
+function score(p, prefs){
+  let s=0;
+  if (['Night out','Date','Party'].includes(prefs.occ) && /Warm|Amber|Oud|Gourmand|Floral/i.test((p.tag||'')+p.desc)) s+=2;
+  if (['Everyday','Office'].includes(prefs.occ) && /Fresh|Clean|Citrus|Musk/i.test((p.tag||'')+p.desc)) s+=2;
+  if (['Hot','Warm'].includes(prefs.wea) && /Fresh|Citrus|Clean/i.test((p.tag||'')+p.desc)) s+=2;
+  if (['Cool','Rainy'].includes(prefs.wea) && /Warm|Amber|Oud|Gourmand/i.test((p.tag||'')+p.desc)) s+=2;
+  if (prefs.focus!=='Fragrance'){ if (p.category===prefs.focus) s+=3; else s-=1; }
+  if (prefs.vibe>=7 && /Gourmand|Vanilla|Cocoa|Sweet/i.test((p.tag||'')+p.desc)) s+=2;
+  if (prefs.vibe<=3 && /Fresh|Citrus|Clean/i.test((p.tag||'')+p.desc)) s+=2;
+  if (prefs.proj>=7 && /Intense|Oud|Strong/i.test((p.tag||'')+p.desc)) s+=1;
+  if (p.status==='in-stock') s+=0.5;
+  return s;
+>>>>>>> a6ba1e6 (Fresh site:home + advisor + PWA (root JSON, fixed header/logo)
 }
 function card(p){
   return `
@@ -128,6 +156,7 @@ const saveCart = cart => localStorage.setItem('egl_cart', JSON.stringify(cart));
 const cartCount = cart => Object.values(cart).reduce((a,i)=>a+i.qty,0);
 const cartSubtotal = cart => Object.values(cart).reduce((a,i)=>a+i.qty*i.price,0);
 
+<<<<<<< HEAD
 /* ---------- UI renderers ---------- */
 function renderGrid(){
   const grid = $('#grid');
@@ -138,6 +167,32 @@ function renderGrid(){
   }catch(err){
     console.error('Render grid failed:', err);
     grid.innerHTML = '<p style="opacity:.8">We had a display hiccup. Please refresh.</p>';
+=======
+async function runAdvisor(){
+  const prefs = { occ:occ.value, wea:wea.value, vibe:+vibe.value, proj:+proj.value, focus:focus.value };
+  const all = await loadProducts(); window.__ALL_PRODUCTS = all;
+  const pool = (prefs.focus==='Fragrance')
+    ? all.filter(p=>['zara-women','zara-men','arab-parfumes','desigparfum'].includes(p.category))
+    : all;
+  const picks = [...pool].map(p=>({p,score:score(p,prefs)})).sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.p);
+  if (adviceEl){ adviceEl.innerHTML = picks.map(renderCard).join(''); bindThumbs(); }
+}
+if ($('#adviseBtn')) $('#adviseBtn').onclick = runAdvisor;
+
+/* ===================== SHOP PAGE ===================== */
+const catGrid = $('#catGrid'), prodGrid = $('#prodGrid'), filterCat = $('#filterCat'), filterStock = $('#filterStock');
+
+async function renderCats(){
+  if (!catGrid) return;
+  const cats = await loadCats();
+  catGrid.innerHTML = cats.map(c=>`
+    <a class="prod" id="cat-${c.id}" href="#cat-${c.id}">
+      <div class="media"><img src="images/${c.image}" alt="${c.name}"></div>
+      <div class="pcontent"><div class="meta"><h4>${c.name}</h4></div></div>
+    </a>`).join('');
+  if (filterCat){
+    filterCat.innerHTML = `<option value="all">All</option>` + cats.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+>>>>>>> a6ba1e6 (Fresh site:home + advisor + PWA (root JSON, fixed header/logo)
   }
 }
 
@@ -156,6 +211,7 @@ function addToCart(sku){
   renderCounts();
 }
 
+<<<<<<< HEAD
 function openCart(){
   const dr = $('#drawer'); if(!dr) return;
   dr.classList.add('open');
@@ -338,3 +394,10 @@ function checkoutWA(){
   const msg = `${header}%0A%0A${lines}%0A%0A${totals}%0A%0A${details}`;
   window.location.href = "https://wa.me/256393101757?text=" + msg;
 }
+=======
+/* boot both pages */
+(async function init(){
+  await renderCats();
+  await renderProducts();
+})();
+>>>>>>> a6ba1e6 (Fresh site:home + advisor + PWA (root JSON, fixed header/logo)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // service-worker.js
 const CACHE_NAME = "egl-catalogue-v2"; // bump when you change this file
 const ASSETS = [
@@ -12,6 +13,12 @@ const ASSETS = [
   "./images/800-black.jpg",
   "./images/tobacco-collection-intense-dark-exclusive.jpg",
   "./images/oud-vibrant-leather.jpg"
+=======
+const CACHE = 'etunganun-v1';
+const ASSETS = [
+  'index.html','shop.html','style.css','app.js','manifest.webmanifest',
+  'images/placeholders/fallback.svg','images/placeholders/coming-soon.jpg'
+>>>>>>> a6ba1e6 (Fresh site:home + advisor + PWA (root JSON, fixed header/logo)
 ];
 
 // Precache core assets
@@ -33,6 +40,7 @@ self.addEventListener("activate", (event) => {
   );
   self.clients.claim();
 });
+<<<<<<< HEAD
 
 // Safe fetch handler
 self.addEventListener("fetch", (event) => {
@@ -72,5 +80,16 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => caches.match("./")); // offline fallback to home
     })
+=======
+self.addEventListener('fetch', e=>{
+  const req = e.request;
+  if (req.method !== 'GET' || req.url.startsWith('chrome-extension')) return;
+  e.respondWith(
+    caches.match(req).then(cached => cached || fetch(req).then(res=>{
+      const copy = res.clone();
+      caches.open(CACHE).then(c=>c.put(req, copy)).catch(()=>{});
+      return res;
+    }).catch(()=>caches.match('images/placeholders/fallback.svg')))
+>>>>>>> a6ba1e6 (Fresh site:home + advisor + PWA (root JSON, fixed header/logo)
   );
 });
