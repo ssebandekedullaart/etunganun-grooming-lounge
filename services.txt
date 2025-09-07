@@ -1,0 +1,34 @@
+[
+  {
+    "id":"svc-barber",
+    "name":"Barbering & Grooming",
+    "category":"barber",
+    "short_desc":"Inclusive, gender-neutral services. Precision cuts, beard shaping, treatments.",
+    "from_price_ugx": 25000,
+    "fresha_url":"https://www.fresha.com/"
+  },
+  {
+    "id":"svc-wigs",
+    "name":"Wigs & Frontals Install",
+    "category":"wigs",
+    "short_desc":"Installations, maintenance, and premium units for all styles.",
+    "from_price_ugx": 80000,
+    "fresha_url":"https://www.fresha.com/"
+  },
+  {
+    "id":"svc-nails",
+    "name":"Nails",
+    "category":"nails",
+    "short_desc":"Clean, stylish nails — see our digital nail catalogue.",
+    "from_price_ugx": 40000,
+    "fresha_url":"https://www.fresha.com/"
+  },
+  {
+    "id":"svc-facials",
+    "name":"Advanced Skincare Facials",
+    "category":"skincare",
+    "short_desc":"Professional facials; pro products (GlyMed+, Skin for Life, MedPeel, Thayers).",
+    "from_price_ugx": 120000,
+    "fresha_url":"https://www.fresha.com/"
+  }
+]

@@ -1,0 +1,114 @@
+const $ = s => document.querySelector(s);
+const money = n => 'UGX ' + (n||0).toLocaleString('en-US');
+
+/* ---------- Home: Advisor ---------- */
+const adviceEl = $('#adviceResults');
+const occ = $('#occ'), wea = $('#wea'), vibe = $('#vibe'), proj = $('#proj'), focus = $('#focus');
+const vibeVal = $('#vibeVal'), projVal = $('#projVal');
+
+if (vibe) vibe.oninput = e => vibeVal.textContent = e.target.value;
+if (proj) proj.oninput = e => projVal.textContent = e.target.value;
+
+async function loadJSON(path){ const r = await fetch(path, {cache:'no-store'}); return r.json(); }
+const loadProducts = () => loadJSON('data/products.json');
+const loadCats     = () => loadJSON('data/categories.json');
+
+function score(p, prefs){
+  let s=0;
+  if (['Night out','Date','Party'].includes(prefs.occ) && /Warm|Amber|Oud|Gourmand|Floral/i.test((p.tag||'')+p.desc)) s+=2;
+  if (['Everyday','Office'].includes(prefs.occ) && /Fresh|Clean|Citrus|Musk/i.test((p.tag||'')+p.desc)) s+=2;
+  if (['Hot','Warm'].includes(prefs.wea) && /Fresh|Citrus|Clean/i.test((p.tag||'')+p.desc)) s+=2;
+  if (['Cool','Rainy'].includes(prefs.wea) && /Warm|Amber|Oud|Gourmand/i.test((p.tag||'')+p.desc)) s+=2;
+  if (prefs.focus!=='Fragrance'){ if (p.category===prefs.focus) s+=3; else s-=1; }
+  if (prefs.vibe>=7 && /Gourmand|Vanilla|Cocoa|Sweet/i.test((p.tag||'')+p.desc)) s+=2;
+  if (prefs.vibe<=3 && /Fresh|Citrus|Clean/i.test((p.tag||'')+p.desc)) s+=2;
+  if (prefs.proj>=7 && /Intense|Oud|Strong/i.test((p.tag||'')+p.desc)) s+=1;
+  if (p.status==='in-stock') s+=0.5;
+  return s;
+}
+
+function renderCard(p){
+  const price = p.price ? `<div class="price">${money(p.price)}</div>` : '';
+  const rib = p.status==='preorder' ? `<div class="ribbon badge-pre">Pre-order (8–10 days)</div>` : '';
+  const first = (p.images && p.images[0]) ? 'images/' + encodeURI(p.images[0]) : 'images/placeholders/fallback.svg';
+  const thumbs = (p.images||[]).slice(0,3).map((src,i)=>`<img class="${i===0?'active':''}" data-id="${p.id}" data-idx="${i}" src="images/${encodeURI(src)}" alt="${p.name} ${i+1}" onerror="this.style.display='none'">`).join('');
+  const chips = (p.notes||[]).map(n=>`<span class="chip">${n}</span>`).join('');
+  return `
+  <article class="prod">
+    <div class="media">
+      ${price}${rib}
+      <img id="main-${p.id}" src="${first}" alt="${p.name}">
+    </div>
+    <div class="thumbbar" id="thumbs-${p.id}">${thumbs}</div>
+    <div class="pcontent">
+      <div class="meta"><h4>${p.name}</h4><span class="tag">${p.tag||''}</span></div>
+      <p class="muted">${p.desc||''}</p>
+      ${chips?`<div class="chips">${chips}</div>`:''}
+      <div style="margin-top:8px">
+        <a class="btn" target="_blank" href="https://wa.me/256393101757?text=${encodeURIComponent('I want: '+p.name+' — '+(p.price?money(p.price):'price?'))}">Order via WhatsApp</a>
+      </div>
+    </div>
+  </article>`;
+}
+
+function bindThumbs(){
+  document.querySelectorAll('.thumbbar img').forEach(t=>{
+    t.onclick = e=>{
+      const id = e.target.dataset.id, idx = +e.target.dataset.idx;
+      const main = document.getElementById('main-'+id);
+      const prod = window.__ALL_PRODUCTS?.find(x=>x.id===id);
+      if (!main || !prod) return;
+      main.src = 'images/' + encodeURI(prod.images[idx]);
+      document.querySelectorAll('#thumbs-'+id+' img').forEach(n=>n.classList.remove('active'));
+      e.target.classList.add('active');
+    };
+  });
+}
+
+/* Advisor */
+async function runAdvisor(){
+  const prefs = { occ:occ.value, wea:wea.value, vibe:+vibe.value, proj:+proj.value, focus:focus.value };
+  const all = await loadProducts(); window.__ALL_PRODUCTS = all;
+  const pool = (prefs.focus==='Fragrance')
+    ? all.filter(p=>['zara-women','zara-men','arab-parfumes','desigparfum'].includes(p.category))
+    : all;
+  const picks = [...pool].map(p=>({p,score:score(p,prefs)})).sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.p);
+  adviceEl.innerHTML = picks.map(renderCard).join('');
+  bindThumbs();
+}
+if ($('#adviseBtn')) $('#adviseBtn').onclick = runAdvisor;
+
+/* ---------- Shop page ---------- */
+const catGrid = $('#catGrid'), prodGrid = $('#prodGrid'), filterCat = $('#filterCat'), filterStock = $('#filterStock');
+
+async function renderCats(){
+  if (!catGrid) return;
+  const cats = await loadCats();
+  catGrid.innerHTML = cats.map(c=>`
+    <a class="prod" id="cat-${c.id}" href="#cat-${c.id}">
+      <div class="media"><img src="images/${c.image}" alt="${c.name}"></div>
+      <div class="pcontent"><div class="meta"><h4>${c.name}</h4></div></div>
+    </a>`).join('');
+  if (filterCat){
+    filterCat.innerHTML = `<option value="all">All</option>` + cats.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  }
+}
+
+async function renderProducts(){
+  if (!prodGrid) return;
+  const all = await loadProducts(); window.__ALL_PRODUCTS = all;
+  const cat = filterCat ? filterCat.value : 'all';
+  const st  = filterStock ? filterStock.value : 'all';
+  const list = all.filter(p => (cat==='all'||p.category===cat) && (st==='all'||p.status===st));
+  prodGrid.innerHTML = list.map(renderCard).join('');
+  bindThumbs();
+}
+
+if (filterCat) filterCat.onchange = renderProducts;
+if (filterStock) filterStock.onchange = renderProducts;
+
+/* boot */
+(async function init(){
+  await renderCats();
+  await renderProducts();
+})();
