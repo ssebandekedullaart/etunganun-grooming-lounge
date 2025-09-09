@@ -1,286 +1,127 @@
+cat > index.html << 'EOF'
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-<<<<<<< HEAD
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0b0e17">
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css"/>
-
-  <title>Etunganun Digital Catalogue — Zara Collection (Interactive)</title>
-=======
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Etunganun Grooming Lounge — Home</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#121212"/>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css"/>
->>>>>>> a6ba1e6 (Fresh site:home + advisor + PWA (root JSON, fixed header/logo)
+  <link rel="icon" href="images/favicon.ico" />
+  <link rel="stylesheet" href="css/style.css" />
+  <meta name="theme-color" content="#121212" />
 </head>
 <body>
-  <header class="header">
-    <div class="container brandbar">
-      <div class="left">
-        <img id="logo" class="logo" src="images/logo.png" alt="Etunganun Grooming Lounge"/>
-        <div>
-          <h2 class="title">Etunganun Digital Catalogue</h2>
-          <div class="sub">Zara Collection • Updated Sep 05, 2025</div>
-          <div class="pills">
-            <span class="pill">Luxury Grooming • Kira Town</span>
-            <span class="pill">Nationwide Delivery</span>
-            <span class="pill">MoMo / Airtel / Card</span>
-          </div>
-        </div>
-      </div>
-<<<<<<< HEAD
-      <div class="actions">
-        <a class="btn" id="btnWhatsApp" href="#">WhatsApp</a>
-        <a class="btn ghost" href="tel:+256393101757">Call: +256 393 101 757</a>
-        <button class="btn" id="openCartHeader">Cart (<span class="js-cart-count">0</span>)</button>
-=======
-    </a>
-    <nav class="hdr__actions">
-      <a class="btn ghost" href="shop.html">Shop</a>
-      <a class="btn" target="_blank" href="https://www.fresha.com/">Book on Fresha</a>
-    </nav>
-  </div>
-  <div class="catbar container">
-    <a href="#features">Features</a>
-    <a href="#advisor">Advisor</a>
-    <a href="#brands">Authentic Brands</a>
-    <a href="#services">Services</a>
-    <a href="#contact">Contact</a>
-  </div>
-</header>
-
-<section class="hero">
-  <div class="container hero__grid">
-    <div class="hero__copy">
-      <h2>Authentic. Current. Curated.</h2>
-      <p>Air-conditioned lounge with a sports-bar vibe, expert grooming, and a boutique for fragrances & care. We stock only genuine products sourced directly from trusted suppliers.</p>
-      <div class="hero__cta">
-        <a class="btn" href="shop.html">Shop now</a>
-        <a class="btn ghost" target="_blank" href="https://www.fresha.com/">Book on Fresha</a>
->>>>>>> a6ba1e6 (Fresh site:home + advisor + PWA (root JSON, fixed header/logo)
-      </div>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="Etunganun" class="logo" />
+        <span class="brand-name">Etunganun Grooming Lounge</span>
+      </a>
+      <nav class="links" id="desktop-nav">
+        <a href="index.html" class="active">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="services.html">Services</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">☰</button>
+    </div>
+    <div class="mobile-drawer" id="drawer" aria-hidden="true">
+      <a href="index.html" class="active">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
     </div>
   </header>
 
-  <section class="hero">
-    <div class="container intro">
-      <h1>Strong. Long-Lasting. Curated by Etunganun.</h1>
-      <p class="tip">Performance varies by skin & weather. For Kampala heat, moisturize and add 1–2 light sprays on clothes to extend wear.</p>
-    </div>
-  </section>
+  <main>
+    <!-- Hero Block -->
+    <section class="hero">
+      <div class="container">
+        <h1>Your Hair. Your Skin. Your Space.</h1>
+        <p class="lead">
+          Inclusive grooming, authentic products, and a lounge experience — now with a curated Zara fragrance shop.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="shop.html#fragrances">Shop Fragrances</a>
+          <a class="btn ghost" href="services.html">Explore Services</a>
+        </div>
+      </div>
+    </section>
 
-  <!-- Scent Advisor -->
-  <section class="container advisor" id="advisor">
-    <h2>Find your scent ✨</h2>
-    <div class="row">
-      <label class="k">Occasion
-        <select id="fOcc"><option>Everyday</option><option>Office</option><option>Night out</option><option>Date</option><option>Party</option></select>
-      </label>
-      <label class="k">Weather
-        <select id="fWeather"><option>Hot</option><option>Warm</option><option>Cool</option><option>Rainy</option></select>
-      </label>
-      <label class="k">Sweet ↔ Fresh <span class="rangeval" id="rSweetVal">5</span>
-        <input type="range" id="rSweet" min="0" max="10" value="5"/>
-      </label>
-    </div>
-    <div class="row">
-      <label class="k">Projection (soft ↔ strong) <span class="rangeval" id="rProjVal">6</span>
-        <input type="range" id="rProj" min="0" max="10" value="6"/>
-      </label>
-      <label class="k">I like notes...
-        <select id="fNote">
-          <option>Vanilla/Gourmand</option>
-          <option>Woody/Spicy</option>
-          <option>Fresh/Citrus</option>
-          <option>Smoky/Tobacco</option>
-        </select>
-      </label>
-      <label class="k">Sensitivity (prefer lighter)
-        <select id="fSens"><option>No</option><option>Yes</option></select>
-      </label>
-    </div>
-    <div class="advisor-actions">
-      <button class="btn" id="runAdvisor">Show my match</button>
-      <button class="btn ghost" id="clearRecos">Clear</button>
-    </div>
-    <div class="recos" id="recos"></div>
-  </section>
+    <!-- USPs -->
+    <section class="features container">
+      <article class="feature">
+        <div class="icon">✅</div>
+        <h3>Authentic Only</h3>
+        <p>Direct-from-brand sourcing. No counterfeits.</p>
+      </article>
+      <article class="feature">
+        <div class="icon">❄️</div>
+        <h3>Sports Bar + AC</h3>
+        <p>Relax while we take care of you.</p>
+      </article>
+      <article class="feature">
+        <div class="icon">✨</div>
+        <h3>Smart Advisor</h3>
+        <p>Personal recommendations for scent & grooming.</p>
+      </article>
+      <article class="feature">
+        <div class="icon">🚚</div>
+        <h3>Nationwide Delivery</h3>
+        <p>Kira Town from UGX 5,000; free over UGX 500k.</p>
+      </article>
+    </section>
 
-  <main class="container">
-    <section class="grid" id="grid"></section>
+    <!-- Zara Highlight -->
+    <section class="panel container">
+      <h2>Zara Fragrances — Men & Women</h2>
+      <p>
+        We move with Zara’s latest drops and seasonal rotations. Try testers in-store; if an item isn’t on hand, delivery is
+        <b>3–5 days</b>. We are Uganda’s dedicated retailer for authentic Zara perfumes.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="shop.html#zara-men">Zara Men</a>
+        <a class="btn primary" href="shop.html#zara-women">Zara Women</a>
+        <a class="btn ghost" href="shop.html">All Categories</a>
+      </div>
+    </section>
 
-    <section class="info-rows">
-      <div class="info"><b>Delivery:</b> Kira Town — <b>UGX 5,000</b> (FREE ≥ <b>UGX 500,000</b>). Other areas — please inquire.</div>
-      <div class="info"><b>Payment:</b> MTN MoMo Pay (*165*3# → Merchant ID <b>707229</b>), Airtel Money Pay (*185*9# → Merchant ID <b>4370918</b>), Card (Stage 2), Cash in-store.</div>
-      <div class="info address"><b>Find us:</b> Mbogo Road 1, Twin Plaza, Opp. Posh Petrol Station.
-If coming from Najjera: after Sir Appolo Kaggwa Primary School.
-From Kyaliwajjala/Bulindo/Kanangati: after Ccare.</div>
+    <!-- Store Info -->
+    <section class="panel container">
+      <h2>Visit Us</h2>
+      <p>
+        <b>Address:</b> Mbogo Road 1, Twin Plaza, Opp. Posh Petrol Station.<br/>
+        From Najjera: after Sir Appolo Kaggwa Primary School. From Kyaliwajjala/Bulindo/Kanangati: after Ccare.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://wa.me/256393101757" target="_blank" rel="noopener">WhatsApp Orders</a>
+        <a class="btn ghost" href="tel:+256393101757">Call: +256 393 101 757</a>
+      </div>
     </section>
   </main>
 
-  <!-- Sticky actions (mobile) -->
-  <div class="sticky-actions">
-    <a class="btn ghost" href="https://wa.me/256393101757?text=Hello%20Etunganun!%20I’d%20like%20to%20order%20from%20your%20catalogue." target="_blank" rel="noopener">WhatsApp</a>
-    <button class="btn" id="openCartSticky">Cart (<span class="js-cart-count">0</span>)</button>
-  </div>
-
-  <!-- Drawer Cart -->
-  <div class="drawer" id="drawer" aria-hidden="true">
-    <div class="overlay" id="overlay" tabindex="-1"></div>
-    <div class="panel" role="dialog" aria-modal="true" aria-label="Shopping cart">
-      <header>
-        <strong>Your Cart</strong>
-        <button class="btn small ghost" id="closeCart">Close</button>
-      </header>
-      <div class="items" id="cartItems"></div>
-      <div class="controls">
-        <div class="col">
-          <label>Customer name <input id="custName" placeholder="Your full name"/></label>
-          <label>Area
-            <select id="area"><option value="Kira Town">Kira Town</option><option value="Other area">Other area (we'll confirm fee)</option></select>
-          </label>
+  <footer class="footer">
+    <div class="container">
+      <div class="cols">
+        <div>
+          <h4>Hours</h4>
+          <p>Mon–Sun: 9am–8pm</p>
         </div>
-        <div class="col">
-          <label>Preferred payment
-            <select id="pay"><option>MTN MoMo Pay</option><option>Airtel Money Pay</option><option>Card / Online (Stage 2)</option><option>Cash</option></select>
-          </label>
-          <label>Notes (optional) <input id="note" placeholder="e.g., deliver after 6pm"/></label>
+        <div>
+          <h4>Payments</h4>
+          <p>MTN MoMo, Airtel Money, Card (coming), Cash</p>
+        </div>
+        <div>
+          <h4>Social</h4>
+          <p><a href="https://wa.me/256393101757" target="_blank" rel="noopener">WhatsApp</a></p>
         </div>
       </div>
-      <div class="paybox" id="paybox" style="display:none">
-        <div class="payrow"><span><b>Amount to pay now</b></span><b id="payAmount">UGX 0</b></div>
-        <div class="payrow" id="mtnRow" style="display:none">
-          <div><b>MTN MoMo Pay</b> — Dial <b>*165*3#</b> → Merchant ID <b>707229</b> <div class="note-inline">Reference: <b>Your Name</b></div></div>
-          <button class="copy" data-copy="707229">Copy ID</button>
-        </div>
-        <div class="payrow" id="airtelRow" style="display:none">
-          <div><b>Airtel Money Pay</b> — Dial <b>*185*9#</b> → Merchant ID <b>4370918</b> <div class="note-inline">Reference: <b>Your Name</b></div></div>
-          <button class="copy" data-copy="4370918">Copy ID</button>
-        </div>
-        <div class="payrow">
-          <label style="flex:1">Transaction ID <input id="txid" placeholder="e.g., MTN: MXXXX... / Airtel: RXXXXXXXX"/></label>
-          <label><input type="checkbox" id="paidChk"/> I’ve paid</label>
-        </div>
-      </div>
-      <div class="totals">
-        <div class="row"><span>Subtotal</span><b id="subTotal">UGX 0</b></div>
-        <div class="row"><span>Delivery</span><b id="deliveryFee">UGX 0</b></div>
-        <div class="row"><span>Total</span><b id="grandTotal">UGX 0</b></div>
-      </div>
-      <div class="checkout">
-        <button class="btn ghost" id="clearCart">Clear</button>
-        <button class="btn" id="checkoutWA">Checkout via WhatsApp</button>
-      </div>
-      <div class="help">We confirm stock promptly and deliver nationwide.</div>
+      <div class="legal">© 2025 Etunganun Grooming Lounge</div>
     </div>
-  </div>
+  </footer>
 
-  <footer class="footer">© Etunganun Grooming Lounge — Your Hair. Your Skin. Your Space.</footer>
-
-<<<<<<< HEAD
-  <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
-    }
-  </script>
-=======
-<section id="advisor" class="container section">
-  <div class="section__head">
-    <h3>Scent & Grooming Advisor</h3>
-    <p>Tell us your occasion, weather, and style — we’ll suggest fragrances and grooming picks.</p>
-  </div>
-  <div class="advisor">
-    <label>Occasion
-      <select id="occ">
-        <option>Everyday</option><option>Office</option><option>Date</option>
-        <option>Night out</option><option>Party</option>
-      </select>
-    </label>
-    <label>Weather
-      <select id="wea"><option>Hot</option><option>Warm</option><option>Cool</option><option>Rainy</option></select>
-    </label>
-    <label>Vibe (Sweet ↔ Fresh) <span id="vibeVal" class="mono">5</span>
-      <input type="range" id="vibe" min="0" max="10" value="5"/>
-    </label>
-    <label>Projection <span id="projVal" class="mono">6</span>
-      <input type="range" id="proj" min="0" max="10" value="6"/>
-    </label>
-    <label>Focus
-      <select id="focus">
-        <option>Fragrance</option><option>Beard</option><option>Hair</option>
-        <option>Body</option><option>Nails</option><option>Wigs</option>
-      </select>
-    </label>
-    <button class="btn" id="adviseBtn">Show my picks</button>
-  </div>
-  <div id="adviceResults" class="grid"></div>
-</section>
-
-<section id="brands" class="container section">
-  <h3>Authentic Brands — Direct from Supplier</h3>
-  <p class="muted">Bevel, Scotch Porter, Frederick Benjamin, Rockwell Razors (and more).</p>
-  <div class="brands">
-    <img src="images/brands/bevel.png" alt="Bevel"/>
-    <img src="images/brands/scotch-porter.png" alt="Scotch Porter"/>
-    <img src="images/brands/frederick-benjamin.png" alt="Frederick Benjamin"/>
-    <img src="images/brands/rockwell.png" alt="Rockwell Razors"/>
-  </div>
-</section>
-
-<section id="services" class="container section">
-  <h3>Services</h3>
-  <div class="cards">
-    <article class="card">
-      <h4>Barbering & Grooming</h4>
-      <p>Inclusive, gender-neutral services. Precision cuts, beard shaping, treatments.</p>
-      <a class="btn" target="_blank" href="https://www.fresha.com/">Book on Fresha</a>
-    </article>
-    <article class="card">
-      <h4>Wigs & Frontals</h4>
-      <p>Installations, maintenance, and premium units for all styles.</p>
-      <a class="btn ghost" href="shop.html#cat-wigs">Browse wigs (products later)</a>
-    </article>
-    <article class="card">
-      <h4>Nails</h4>
-      <p>Clean, stylish nails — see our digital nail catalogue.</p>
-      <a class="btn ghost" href="shop.html#cat-nails">See catalogue</a>
-    </article>
-  </div>
-</section>
-
-<section id="contact" class="container section">
-  <h3>Visit / Contact</h3>
-  <p><b>Address:</b> Mbogo Road 1, Twin Plaza, Opp. Posh Petrol Station.</p>
-  <p><b>Phone:</b> <a href="tel:+256393101757">+256 393 101 757</a> • <b>WhatsApp:</b> <a target="_blank" href="https://wa.me/256393101757">Chat</a></p>
-  <p class="muted">Delivery: Kira Town UGX 5,000 (FREE ≥ UGX 500,000). Other areas — please inquire.</p>
-</section>
-
-<footer class="ftr">© Etunganun Grooming Lounge — Your Hair. Your Skin. Your Space.</footer>
-
-<!-- App -->
-<script src="app.js"></script>
-
-<!-- Register SW -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
-  });
-}
-</script>
->>>>>>> a6ba1e6 (Fresh site:home + advisor + PWA (root JSON, fixed header/logo)
+  <script src="js/app.js"></script>
 </body>
 </html>
+EOF
