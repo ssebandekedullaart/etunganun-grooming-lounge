@@ -1,4 +1,3 @@
-cat > js/app.js << 'EOF'
 // mobile drawer toggle
 const burger = document.getElementById('hamburger');
 const drawer = document.getElementById('drawer');
@@ -9,4 +8,3 @@ if (burger && drawer) {
     drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
   });
 }
-EOF

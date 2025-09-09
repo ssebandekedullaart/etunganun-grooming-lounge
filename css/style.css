@@ -1,4 +1,3 @@
-cat > css/style.css << 'EOF'
 :root{
   --bg:#121212; --surface:#1E1911; --ink:#F2F2F2;
   --gold:#B77A2A; --gold-soft:#F4D5A1; --link:#F9DBAF;
@@ -53,4 +52,3 @@ a{color:var(--link);text-decoration:none}
 .footer h4{color:var(--gold);margin:.2rem 0}
 .footer .legal{border-top:1px solid rgba(255,255,255,.08);padding:12px 0;color:#cfcfcf;font-size:.9rem;text-align:center}
 @media (max-width:780px){.footer .cols{grid-template-columns:1fr}}
-EOF
